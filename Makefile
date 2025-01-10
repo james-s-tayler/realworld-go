@@ -20,4 +20,4 @@ confirm:
 .PHONY: run/api
 
 run/api:
-	go run ./src/api
+	go run ./cmd
