@@ -20,4 +20,8 @@ confirm:
 .PHONY: run/api
 
 run/api:
-	go run ./cmd
+	go run ./cmd &
+
+## test/api: run the /api application in the background, then run the postman collection in docker and kill the api application once finished
+test/api: run/api
+	docker compose up && pkill cmd

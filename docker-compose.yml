@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  newman:
+    image: postman/newman:alpine
+    container_name: newman_runner
+    network_mode: host
+    volumes:
+      - ./testdata:/etc/newman
+    entrypoint: >
+      newman run /etc/newman/Conduit.postman_collection.json --delay-request 250 --global-var "APIURL=http://localhost:4000/api" --global-var "USERNAME=soloyolo" --global-var "EMAIL=soloyolo@mail.com" --global-var "PASSWORD=password123" "$@"
