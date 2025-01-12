@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	app := &conduit.Application{}
+	app := conduit.New()
 
 	http.ListenAndServe(":4000", app.Routes())
 }
