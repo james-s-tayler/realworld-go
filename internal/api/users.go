@@ -10,12 +10,28 @@ import (
 
 // GET /api/user
 func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+	user := &data.User{}
+	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
+		app.logger.Error(msg)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, msg)
+		return
+	}
 }
 
 // POST /api/users/login
 func (app *Application) loginUserHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+	user := &data.User{}
+	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
+		app.logger.Error(msg)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, msg)
+		return
+	}
 }
 
 // POST /api/users
@@ -59,7 +75,7 @@ func (app *Application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.logger.Info("Registered user: ", "user", user)
 
-	err = json.NewEncoder(w).Encode(envelope{"user": user})
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 	if err != nil {
 		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
 		app.logger.Error(msg)
@@ -71,5 +87,13 @@ func (app *Application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 // PUT /api/user
 func (app *Application) updateUserHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+	user := &data.User{}
+	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
+		app.logger.Error(msg)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, msg)
+		return
+	}
 }
