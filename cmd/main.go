@@ -18,6 +18,9 @@ func main() {
 			Dsn:            "file:conduit.db?mode=rwc&cache=shared",
 			TimeoutSeconds: 30,
 		},
+		JWT: struct{ SecretKey []byte }{
+			SecretKey: []byte("secret-key"),
+		},
 	}
 	app, closeDb, err := conduit.NewApp(config)
 	if err != nil {

@@ -9,12 +9,13 @@ import (
 )
 
 type User struct {
-	Id       int     `json:"-"`
-	Email    string  `json:"email"`
-	Token    string  `json:"token"`
-	Username string  `json:"username"`
-	Bio      string  `json:"bio"`
-	Image    *string `json:"image"`
+	Id       int      `json:"-"`
+	Email    string   `json:"email"`
+	Token    string   `json:"token"`
+	Username string   `json:"username"`
+	Bio      string   `json:"bio"`
+	Image    *string  `json:"image"`
+	Password password `json:"-"`
 }
 
 var (
@@ -29,8 +30,8 @@ type UserRepository struct {
 
 func (userRepo *UserRepository) RegisterUser(user *User) (*User, error) {
 
-	query := `INSERT INTO USER (Email, Username, Token, Bio) VALUES($1,$2,$3,$4) RETURNING Id`
-	args := []any{user.Email, user.Username, user.Token, user.Bio}
+	query := `INSERT INTO USER (Email, Username, PasswordHash, Bio) VALUES($1,$2,$3,$4) RETURNING Id`
+	args := []any{user.Email, user.Username, user.Password.hash, user.Bio}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(userRepo.TimeoutSeconds)*time.Second)
 	defer cancel()

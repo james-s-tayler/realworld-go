@@ -18,8 +18,9 @@ import (
 )
 
 type Application struct {
-	logger  *slog.Logger
-	domains domains
+	logger       *slog.Logger
+	domains      domains
+	tokenService data.ITokenService
 }
 
 type Config struct {
@@ -27,6 +28,9 @@ type Config struct {
 		Driver         string
 		Dsn            string
 		TimeoutSeconds int
+	}
+	JWT struct {
+		SecretKey []byte
 	}
 }
 
@@ -54,6 +58,9 @@ func NewApp(config Config) (*Application, func(), error) {
 				DB:             db,
 				TimeoutSeconds: config.DB.TimeoutSeconds,
 			},
+		},
+		tokenService: data.JwtTokenService{
+			SecretKey: config.JWT.SecretKey,
 		},
 	}
 
