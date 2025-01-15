@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -42,7 +43,7 @@ func (userRepo *UserRepository) RegisterUser(user *User) (*User, error) {
 		case err.Error() == "UNIQUE constraint failed: User.Email":
 			return nil, ErrDuplicateEmail
 		default:
-			return nil, err
+			return nil, fmt.Errorf("error when registering a user: %w", err)
 		}
 	}
 

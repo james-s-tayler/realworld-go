@@ -172,15 +172,15 @@
                   "exec": [
                     "var responseJSON = JSON.parse(pm.response.text());",
                     "",
-                    "pm.test['Response contains \"user\" property'] = responseJSON.hasOwnProperty('user');",
+                    "pm.test('Response contains \"user\" property', responseJSON.hasOwnProperty('user'));",
                     "",
                     "var user = responseJSON.user || {};",
                     "",
-                    "pm.test['User has \"email\" property'] = user.hasOwnProperty('email');",
-                    "pm.test['User has \"username\" property'] = user.hasOwnProperty('username');",
-                    "pm.test['User has \"bio\" property'] = user.hasOwnProperty('bio');",
-                    "pm.test['User has \"image\" property'] = user.hasOwnProperty('image');",
-                    "pm.test['User has \"token\" property'] = user.hasOwnProperty('token');",
+                    "pm.test('User has \"email\" property', user.hasOwnProperty('email'));",
+                    "pm.test('User has \"username\" property', user.hasOwnProperty('username'));",
+                    "pm.test('User has \"bio\" property', user.hasOwnProperty('bio'));",
+                    "pm.test('User has \"image\" property', user.hasOwnProperty('image'));",
+                    "pm.test('User has \"token\" property', user.hasOwnProperty('token'));",
                     ""
                   ]
                 }
@@ -224,15 +224,15 @@
                   "exec": [
                     "var responseJSON = JSON.parse(pm.response.text());",
                     "",
-                    "pm.test['Response contains \"user\" property'] = responseJSON.hasOwnProperty('user');",
+                    "pm.test('Response contains \"user\" property', responseJSON.hasOwnProperty('user'));",
                     "",
                     "var user = responseJSON.user || {};",
                     "",
-                    "pm.test['User has \"email\" property'] = user.hasOwnProperty('email');",
-                    "pm.test['User has \"username\" property'] = user.hasOwnProperty('username');",
-                    "pm.test['User has \"bio\" property'] = user.hasOwnProperty('bio');",
-                    "pm.test['User has \"image\" property'] = user.hasOwnProperty('image');",
-                    "pm.test['User has \"token\" property'] = user.hasOwnProperty('token');",
+                    "pm.test('User has \"email\" property', user.hasOwnProperty('email'));",
+                    "pm.test('User has \"username\" property', user.hasOwnProperty('username'));",
+                    "pm.test('User has \"bio\" property', user.hasOwnProperty('bio'));",
+                    "pm.test('User has \"image\" property', user.hasOwnProperty('image'));",
+                    "pm.test('User has \"token\" property', user.hasOwnProperty('token'));",
                     ""
                   ]
                 }
