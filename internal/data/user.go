@@ -77,7 +77,7 @@ func (repo *UserRepository) GetUserByCredentials(email string, password string) 
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, ErrInvalidCredentials
 		default:
-			return nil, err
+			return nil, fmt.Errorf("error when looking up user for credential check: %w", err)
 		}
 	}
 
@@ -87,7 +87,7 @@ func (repo *UserRepository) GetUserByCredentials(email string, password string) 
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
 			return nil, ErrInvalidCredentials
 		default:
-			return nil, err
+			return nil, fmt.Errorf("error when attempting to compare password and password hash: %w", err)
 		}
 	}
 
