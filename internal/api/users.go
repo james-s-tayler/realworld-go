@@ -2,37 +2,11 @@ package conduit
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 
 	"realworld.tayler.io/internal/data"
 )
-
-// GET /api/user
-func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	user := &data.User{}
-	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
-	if err != nil {
-		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
-		app.logger.Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, msg)
-		return
-	}
-}
-
-// POST /api/users/login
-func (app *Application) loginUserHandler(w http.ResponseWriter, r *http.Request) {
-	user := &data.User{}
-	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
-	if err != nil {
-		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
-		app.logger.Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, msg)
-		return
-	}
-}
 
 // POST /api/users
 func (app *Application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,10 +21,7 @@ func (app *Application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
-		app.logger.Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, msg)
+		app.serveResponseErrorInternalServerError(w, err)
 		return
 	}
 
@@ -65,38 +36,79 @@ func (app *Application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	err = user.Password.Set(input.User.Password)
 	if err != nil {
-		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
-		app.logger.Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, msg)
+		app.serveResponseErrorInternalServerError(w, err)
 		return
 	}
 
 	user, err = app.domains.users.RegisterUser(user)
 	if err != nil {
-		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
-		app.logger.Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, msg)
+		app.serveResponseErrorInternalServerError(w, err)
 		return
 	}
 
 	token, err := app.tokenService.CreateToken(user)
 	if err != nil {
-		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
-		app.logger.Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, msg)
+		app.serveResponseErrorInternalServerError(w, err)
 		return
 	}
 	user.Token = token
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 	if err != nil {
-		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
-		app.logger.Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, msg)
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+}
+
+// POST /api/users/login
+func (app *Application) loginUserHandler(w http.ResponseWriter, r *http.Request) {
+
+	var input struct {
+		User struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		} `json:"user"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	// TODO validate input
+
+	user, err := app.domains.users.GetUserByCredentials(input.User.Email, input.User.Password)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrInvalidCredentials):
+			app.serveResponseErrorUnauthorized(w, r)
+			return
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+			return
+		}
+	}
+
+	token, err := app.tokenService.CreateToken(user)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+	user.Token = token
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+	}
+}
+
+// GET /api/user
+func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
+	user := &data.User{}
+	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
 		return
 	}
 }
@@ -106,10 +118,7 @@ func (app *Application) updateUserHandler(w http.ResponseWriter, r *http.Request
 	user := &data.User{}
 	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 	if err != nil {
-		msg := fmt.Sprintf("An unexpected error occurred while processing the request: %v\n", err.Error())
-		app.logger.Error(msg)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, msg)
+		app.serveResponseErrorInternalServerError(w, err)
 		return
 	}
 }

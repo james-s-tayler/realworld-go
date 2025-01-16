@@ -16,6 +16,10 @@ confirm:
 # DEVELOPMENT
 # ==================================================================================== #
 
+## build/api/dev: builds the api for the local dev environment
+build/api/dev:
+	go build -o ./bin/api ./cmd
+
 ## run/api: run the /api application in the foreground
 .PHONY: run/api
 run/api:
@@ -28,12 +32,12 @@ run/api/background:
 
 ## test/api: run the /api application in the background, then run the postman collection in docker and kill the api application once finished
 .PHONY: test/api
-test/api: db/reset run/api/background
+test/api: db/reset build/api/dev run/api/background
 	sleep 1 && docker compose up && pkill cmd
 
 ## test/api/auth: run the /api application in the background, then run the tests in the Auth folder of the postman collection in docker and kill the api application once finished
 .PHONY: test/api/auth
-test/api/auth: db/reset run/api/background
+test/api/auth: db/reset build/api/dev run/api/background
 	sleep 1 && FOLDER=Auth docker compose up && pkill cmd
 
 ## db/reset: delete the db and recreate it via running the migrations
