@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
+
+	"realworld.tayler.io/internal/data"
 )
 
 // panic recovery middleware
@@ -31,7 +34,30 @@ func (app *Application) recoverPanic(next http.Handler) http.Handler {
 func (app *Application) authenticateUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		ctx := context.WithValue(r.Context(), userContextKey, anonymousUser)
+		tokenString := r.Header.Get("Authorization")
+		usercontext := anonymousUser
+
+		if tokenString != "" && strings.HasPrefix(tokenString, "Token ") {
+			token, err := app.tokenService.VerifyToken(tokenString[len("Token "):])
+
+			if err != nil {
+				app.logger.Error("invalid token: %v", err)
+			} else {
+				claims, ok := token.Claims.(*data.CustomClaims)
+				if ok {
+					usercontext = &userContext{
+						isAuthenticated: true,
+						userId:          claims.UserId,
+						username:        claims.Username,
+					}
+					// we could validate such a user exists here too etc, but skipping for now
+				} else {
+					app.logger.Error("there was a problem accessing user claims")
+				}
+			}
+		}
+
+		ctx := context.WithValue(r.Context(), userContextKey, usercontext)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)

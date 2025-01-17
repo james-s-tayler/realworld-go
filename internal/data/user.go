@@ -56,7 +56,7 @@ func (repo *UserRepository) RegisterUser(user *User) (*User, error) {
 
 func (repo *UserRepository) GetUserByCredentials(email string, password string) (*User, error) {
 
-	query := `SELECT Username, Bio, Image, PasswordHash FROM User WHERE Email = $1`
+	query := `SELECT Id, Username, Bio, Image, PasswordHash FROM User WHERE Email = $1`
 	args := []any{email}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
@@ -67,6 +67,7 @@ func (repo *UserRepository) GetUserByCredentials(email string, password string) 
 	}
 
 	err := repo.DB.QueryRowContext(ctx, query, args...).Scan(
+		&user.Id,
 		&user.Username,
 		&user.Bio,
 		&user.Image,

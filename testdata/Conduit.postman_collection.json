@@ -398,7 +398,7 @@
 					"response": []
 				},
 				{
-					"name": "Current User - unauthenticated",
+					"name": "Current User - unauthenticated, missing authorization header",
 					"event": [
 						{
 							"listen": "test",
@@ -428,6 +428,50 @@
 								"key": "Authorization",
 								"value": "Token {{token}}",
 								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{APIURL}}/user",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Current User - unauthenticated, invalid token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token 123"
 							}
 						],
 						"url": {
