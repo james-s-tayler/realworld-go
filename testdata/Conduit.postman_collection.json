@@ -337,21 +337,35 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test('Response contains \"user\" property', responseJSON.hasOwnProperty('user'));",
+									"pm.test('Response contains \"user\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('user')",
+									"});",
 									"",
 									"var user = responseJSON.user || {};",
 									"",
-									"pm.test('user.email matches the EMAIL variable', pm.expect(user.email).to.eql(pm.globals.get('EMAIL')));",
-									"pm.test('user.usermame matches USERNAME variable', pm.expect(user.username).to.eql(pm.globals.get('USERNAME')));",
-									"pm.test('User has default \"bio\" property', pm.expect(user.bio).to.eql('I work at statefarm'));",
-									"pm.test('User has \"image\" property', user.hasOwnProperty('image'));",
-									"pm.test('User has \"token\" property', user.hasOwnProperty('token'));",
-									""
-								]
+									"pm.test('user.email matches the EMAIL variable', function() {",
+									"    const email = pm.globals.get('EMAIL') || pm.environment.get('EMAIL')",
+									"    pm.expect(user.email).to.eql(email)",
+									"});",
+									"pm.test('user.usermame matches USERNAME variable', function() {",
+									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    pm.expect(user.username).to.eql(username)",
+									"});",
+									"pm.test('User has \"bio\" property', function() {",
+									"    pm.expect(user).to.have.property('bio')",
+									"});",
+									"pm.test('User has \"image\" property', function() {",
+									"    pm.expect(user).to.have.property('image')",
+									"});",
+									"pm.test('User has \"token\" property', function() {",
+									"    pm.expect(user).to.have.property('token')",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -384,26 +398,95 @@
 					"response": []
 				},
 				{
+					"name": "Current User - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{APIURL}}/user",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Update User",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test('Response contains \"user\" property', responseJSON.hasOwnProperty('user'));",
+									"pm.test('Response contains \"user\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('user')",
+									"});",
 									"",
 									"var user = responseJSON.user || {};",
 									"",
-									"pm.test('user.email matches the EMAIL variable', pm.expect(user.email).to.eql(pm.globals.get('EMAIL')));",
-									"pm.test('user.usermame matches USERNAME variable', pm.expect(user.username).to.eql(pm.globals.get('USERNAME')));",
-									"pm.test('User has updated \"bio\" property', pm.expect(user.bio).to.eql('I no longer work at statefarm'));",
-									"pm.test('User has \"image\" property', user.hasOwnProperty('image'));",
-									"pm.test('User has \"token\" property', user.hasOwnProperty('token'));",
-									""
-								]
+									"pm.test('user.email matches the EMAIL variable', function() {",
+									"    const email = pm.globals.get('EMAIL') || pm.environment.get('EMAIL')",
+									"    pm.expect(user.email).to.eql(email)",
+									"});",
+									"pm.test('user.usermame matches USERNAME variable', function() {",
+									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    pm.expect(user.username).to.eql(username)",
+									"});",
+									"pm.test('User has \"bio\" property', function() {",
+									"    pm.expect(user).to.eql(pm.globals.get('UPDATED_BIO'))",
+									"});",
+									"pm.test('User has \"image\" property', function() {",
+									"    pm.expect(user).to.have.property('image')",
+									"});",
+									"pm.test('User has \"token\" property', function() {",
+									"    pm.expect(user).to.have.property('token')",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('UPDATED_BIO') = 'I no longer work at statefarm'"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -421,6 +504,55 @@
 							{
 								"key": "Authorization",
 								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"bio\":\"{{UPDATED_BIO}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/user",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}",
+								"disabled": true
 							}
 						],
 						"body": {

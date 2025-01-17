@@ -13,7 +13,7 @@ func (app *Application) serveResponseErrorInternalServerError(w http.ResponseWri
 }
 
 func (app *Application) serveResponseErrorUnauthorized(w http.ResponseWriter, r *http.Request) {
-	msg := fmt.Sprintf("Login failed for ip address: %v\n", r.RemoteAddr)
+	msg := fmt.Sprintf("Unauthorized request to %v %v from ip address: %v\n", r.Method, r.RequestURI, r.RemoteAddr)
 	app.logger.Warn(msg)
 	w.WriteHeader(http.StatusUnauthorized)
 }

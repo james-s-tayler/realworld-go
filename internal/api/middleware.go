@@ -1,6 +1,7 @@
 package conduit
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -29,12 +30,24 @@ func (app *Application) recoverPanic(next http.Handler) http.Handler {
 
 func (app *Application) authenticateUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		ctx := context.WithValue(r.Context(), userContextKey, anonymousUser)
+		r = r.WithContext(ctx)
+
 		next.ServeHTTP(w, r)
 	})
 }
 
 func (app *Application) requireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		userContext := r.Context().Value(userContextKey).(*userContext)
+
+		if !userContext.isAuthenticated {
+			app.serveResponseErrorUnauthorized(w, r)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
