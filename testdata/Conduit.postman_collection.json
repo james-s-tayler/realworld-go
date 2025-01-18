@@ -360,12 +360,19 @@
 									"pm.test('User has \"image\" property', function() {",
 									"    pm.expect(user).to.have.property('image')",
 									"});",
-									"pm.test('User has \"token\" property', function() {",
-									"    pm.expect(user).to.have.property('token')",
+									"pm.test('User has \"token\" property that matches the token in the Authorization header', function() {",
+									"    pm.expect(user.token).to.eql(pm.globals.get('token'))",
 									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -510,7 +517,7 @@
 									"    pm.expect(user.username).to.eql(username)",
 									"});",
 									"pm.test('User has \"bio\" property', function() {",
-									"    pm.expect(user).to.eql(pm.globals.get('UPDATED_BIO'))",
+									"    pm.expect(user.bio).to.eql(pm.globals.get('UPDATED_BIO'))",
 									"});",
 									"pm.test('User has \"image\" property', function() {",
 									"    pm.expect(user).to.have.property('image')",
@@ -527,7 +534,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.globals.set('UPDATED_BIO') = 'I no longer work at statefarm'"
+									"pm.globals.set('UPDATED_BIO', 'I no longer work at statefarm')"
 								],
 								"type": "text/javascript",
 								"packages": {}

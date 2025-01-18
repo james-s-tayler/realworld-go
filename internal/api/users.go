@@ -105,8 +105,16 @@ func (app *Application) loginUserHandler(w http.ResponseWriter, r *http.Request)
 
 // GET /api/user
 func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	user := &data.User{}
-	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+
+	userContext := app.getUserContext(r)
+	user, err := app.domains.users.GetUserById(userContext.userId)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+	user.Token = userContext.token
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 	if err != nil {
 		app.serveResponseErrorInternalServerError(w, err)
 		return
@@ -115,8 +123,55 @@ func (app *Application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 
 // PUT /api/user
 func (app *Application) updateUserHandler(w http.ResponseWriter, r *http.Request) {
-	user := &data.User{}
-	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+
+	userContext := app.getUserContext(r)
+	user, err := app.domains.users.GetUserById(userContext.userId)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+	user.Token = userContext.token
+
+	var input struct {
+		User struct {
+			Username *string `json:"username"`
+			Email    *string `json:"email"`
+			Password *string `json:"password"`
+			Image    *string `json:"image"`
+			Bio      *string `json:"bio"`
+		} `json:"user"`
+	}
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	if input.User.Username != nil {
+		user.Username = *input.User.Username
+	}
+	if input.User.Email != nil {
+		user.Email = *input.User.Email
+	}
+	if input.User.Password != nil {
+		user.Password.Set(*input.User.Password)
+	}
+	if input.User.Image != nil {
+		user.Image = input.User.Image
+	}
+	if input.User.Bio != nil {
+		user.Bio = *input.User.Bio
+	}
+
+	// todo perform validation
+
+	err = app.domains.users.UpdateUser(user)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
 	if err != nil {
 		app.serveResponseErrorInternalServerError(w, err)
 		return

@@ -24,6 +24,7 @@ var (
 	ErrDuplicateUsername  = errors.New("duplicate username")
 	ErrDuplicateEmail     = errors.New("duplicate email")
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrUserNotFound       = errors.New("user not found")
 )
 
 type UserRepository struct {
@@ -93,4 +94,57 @@ func (repo *UserRepository) GetUserByCredentials(email string, password string) 
 	}
 
 	return user, nil
+}
+
+func (repo *UserRepository) GetUserById(userId int) (*User, error) {
+	query := `SELECT Username, Email, Bio, Image, PasswordHash FROM User WHERE Id = $1`
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	user := &User{
+		Id: userId,
+	}
+
+	err := repo.DB.QueryRowContext(ctx, query, userId).Scan(
+		&user.Username,
+		&user.Email,
+		&user.Bio,
+		&user.Image,
+		&user.Password.hash,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrUserNotFound
+		default:
+			return nil, fmt.Errorf("an unexpected error occurred when retrieving the user: %w", err)
+		}
+	}
+
+	return user, nil
+}
+
+func (repo *UserRepository) UpdateUser(user *User) error {
+	query := `UPDATE User SET (Username, Email, PasswordHash, Bio, Image) = ($1, $2, $3, $4, $5) WHERE Id = $6`
+	args := []any{
+		user.Username,
+		user.Email,
+		user.Password.hash,
+		user.Bio,
+		user.Image,
+		user.Id,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	result, err := repo.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("error updating user: %w", err)
+	}
+	if rows, err := result.RowsAffected(); err != nil || rows == 0 {
+		return fmt.Errorf("error updating user - no rows were updated: %w", err)
+	}
+
+	return nil
 }

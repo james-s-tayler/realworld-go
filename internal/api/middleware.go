@@ -38,10 +38,11 @@ func (app *Application) authenticateUser(next http.Handler) http.Handler {
 		usercontext := anonymousUser
 
 		if tokenString != "" && strings.HasPrefix(tokenString, "Token ") {
-			token, err := app.tokenService.VerifyToken(tokenString[len("Token "):])
+			rawToken := tokenString[len("Token "):]
+			token, err := app.tokenService.VerifyToken(rawToken)
 
 			if err != nil {
-				app.logger.Error("invalid token: %v", err)
+				app.logger.Error("invalid token", "error", err)
 			} else {
 				claims, ok := token.Claims.(*data.CustomClaims)
 				if ok {
@@ -49,6 +50,7 @@ func (app *Application) authenticateUser(next http.Handler) http.Handler {
 						isAuthenticated: true,
 						userId:          claims.UserId,
 						username:        claims.Username,
+						token:           rawToken,
 					}
 					// we could validate such a user exists here too etc, but skipping for now
 				} else {
@@ -67,7 +69,7 @@ func (app *Application) authenticateUser(next http.Handler) http.Handler {
 func (app *Application) requireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		userContext := r.Context().Value(userContextKey).(*userContext)
+		userContext := app.getUserContext(r)
 
 		if !userContext.isAuthenticated {
 			app.serveResponseErrorUnauthorized(w, r)
