@@ -3,6 +3,8 @@ package conduit
 import (
 	"fmt"
 	"net/http"
+
+	"realworld.tayler.io/internal/validator"
 )
 
 func (app *Application) serveResponseErrorInternalServerError(w http.ResponseWriter, err error) {
@@ -16,4 +18,11 @@ func (app *Application) serveResponseErrorUnauthorized(w http.ResponseWriter, r 
 	msg := fmt.Sprintf("Unauthorized request to %v %v from ip address: %v\n", r.Method, r.RequestURI, r.RemoteAddr)
 	app.logger.Warn(msg)
 	w.WriteHeader(http.StatusUnauthorized)
+}
+
+func (app *Application) serveResponseErrorUnprocessableEntity(w http.ResponseWriter, v *validator.Validator) {
+	err := app.writeJSON(w, http.StatusUnprocessableEntity, envelope{"errors": v.Errors}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+	}
 }

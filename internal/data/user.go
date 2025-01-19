@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"realworld.tayler.io/internal/validator"
 )
 
 type User struct {
@@ -18,6 +19,10 @@ type User struct {
 	Bio      string   `json:"bio"`
 	Image    *string  `json:"image"`
 	Password Password `json:"-"`
+}
+
+func (u *User) Validate(v *validator.Validator) {
+	v.Check(v.Matches(u.Email, validator.EmailRX), "email", "must be a valid email address")
 }
 
 var (

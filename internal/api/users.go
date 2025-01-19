@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"realworld.tayler.io/internal/data"
+	"realworld.tayler.io/internal/validator"
 )
 
 // POST /api/users
@@ -32,11 +33,15 @@ func (app *Application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Image:    nil,
 	}
 
-	// TODO: validate input
-
 	err = user.Password.Set(input.User.Password)
 	if err != nil {
 		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	v := validator.New()
+	if user.Validate(v); !v.Valid() {
+		app.serveResponseErrorUnprocessableEntity(w, v)
 		return
 	}
 
@@ -163,7 +168,11 @@ func (app *Application) updateUserHandler(w http.ResponseWriter, r *http.Request
 		user.Bio = *input.User.Bio
 	}
 
-	// todo perform validation
+	v := validator.New()
+	if user.Validate(v); !v.Valid() {
+		app.serveResponseErrorUnprocessableEntity(w, v)
+		return
+	}
 
 	err = app.domains.users.UpdateUser(user)
 	if err != nil {

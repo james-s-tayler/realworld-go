@@ -88,6 +88,74 @@
 					"response": []
 				},
 				{
+					"name": "Register - validation failure - not a valid email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (!(pm.environment.isIntegrationTest)) {",
+									"    pm.test('Response is HTTP 422', function() {",
+									"        pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"    })",
+									"",
+									"    var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"    pm.test('Response contains \"errors\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('errors');",
+									"    });",
+									"",
+									"    var errors = responseJSON.errors || {};",
+									"",
+									"    pm.test('\"email\" property must be valid email address', function() {",
+									"       pm.expect(errors).to.have.property('email')",
+									"   　});",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('RANDOM_USERNAME', \"username\" + (Math.random() * 100))"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"soloyolo\", \"password\":\"{{PASSWORD}}\", \"username\":\"{{RANDOM_USERNAME}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Login",
 					"event": [
 						{
