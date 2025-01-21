@@ -47,7 +47,16 @@ func (app *Application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	user, err = app.domains.users.RegisterUser(user)
 	if err != nil {
-		app.serveResponseErrorInternalServerError(w, err)
+		switch {
+		case errors.Is(err, data.ErrDuplicateUsername):
+			v.AddError("username", "duplicate username")
+			app.serveResponseErrorUnprocessableEntity(w, v)
+		case errors.Is(err, data.ErrDuplicateEmail):
+			v.AddError("email", "duplicate email")
+			app.serveResponseErrorUnprocessableEntity(w, v)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
 		return
 	}
 
@@ -174,7 +183,16 @@ func (app *Application) updateUserHandler(w http.ResponseWriter, r *http.Request
 
 	err = app.domains.users.UpdateUser(user)
 	if err != nil {
-		app.serveResponseErrorInternalServerError(w, err)
+		switch {
+		case errors.Is(err, data.ErrDuplicateUsername):
+			v.AddError("username", "duplicate username")
+			app.serveResponseErrorUnprocessableEntity(w, v)
+		case errors.Is(err, data.ErrDuplicateEmail):
+			v.AddError("email", "duplicate email")
+			app.serveResponseErrorUnprocessableEntity(w, v)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
 		return
 	}
 
