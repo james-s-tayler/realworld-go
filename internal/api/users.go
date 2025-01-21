@@ -81,8 +81,6 @@ func (app *Application) loginUserHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// TODO validate input
-
 	user, err := app.domains.users.GetUserByCredentials(input.User.Email, input.User.Password)
 	if err != nil {
 		switch {

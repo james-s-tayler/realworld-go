@@ -23,6 +23,17 @@ type User struct {
 
 func (u *User) Validate(v *validator.Validator) {
 	v.Check(v.Matches(u.Email, validator.EmailRX), "email", "must be a valid email address")
+	v.Check(u.Username != "", "username", "must not be empty")
+	v.Check(u.Bio != "", "bio", "must not be empty")
+
+	if u.Password.Plaintext != nil {
+		v.Check(len(*u.Password.Plaintext) >= 8, "password", "password must contain at least 8 characters")
+	}
+
+	if u.Password.hash == nil {
+		// should never get here
+		panic(fmt.Sprintf("missing password hash for user %v", u.Username))
+	}
 }
 
 var (
