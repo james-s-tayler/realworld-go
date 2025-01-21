@@ -861,18 +861,18 @@
 									"var user = responseJSON.user || {};",
 									"",
 									"pm.test('user.email matches the EMAIL variable', function() {",
-									"    const email = pm.globals.get('EMAIL') || pm.environment.get('EMAIL')",
+									"    const email = pm.globals.get('UPDATED_EMAIL')",
 									"    pm.expect(user.email).to.eql(email)",
 									"});",
 									"pm.test('user.usermame matches USERNAME variable', function() {",
-									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    const username = pm.globals.get('UPDATED_USERNAME')",
 									"    pm.expect(user.username).to.eql(username)",
 									"});",
 									"pm.test('User has \"bio\" property', function() {",
 									"    pm.expect(user.bio).to.eql(pm.globals.get('UPDATED_BIO'))",
 									"});",
 									"pm.test('User has \"image\" property', function() {",
-									"    pm.expect(user).to.have.property('image')",
+									"    pm.expect(user.image).to.eql(pm.globals.get('UPDATED_IMAGE'))",
 									"});",
 									"pm.test('User has \"token\" property', function() {",
 									"    pm.expect(user).to.have.property('token')",
@@ -886,7 +886,12 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.globals.set('UPDATED_BIO', 'I no longer work at statefarm')"
+									"pm.globals.set('UPDATED_USERNAME', (Math.random() * 1000) + 'user')",
+									"pm.globals.set('UPDATED_EMAIL', (Math.random() * 1000) + '@example.com')",
+									"pm.globals.set('UPDATED_PASSWORD', 'password' + (Math.random() * 1000))",
+									"pm.globals.set('UPDATED_BIO', 'I no longer work at statefarm')",
+									"pm.globals.set('UPDATED_IMAGE', 'https://i.stack.imgur.com/xHWG8.jpg')",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -911,7 +916,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"user\":{\"bio\":\"{{UPDATED_BIO}}\"}}"
+							"raw": "{\n    \"user\":{\n        \"username\":\"{{UPDATED_USERNAME}}\",\n        \"email\":\"{{UPDATED_EMAIL}}\",\n        \"password\":\"{{UPDATED_PASSWORD}}\",\n        \"bio\":\"{{UPDATED_BIO}}\",\n        \"image\":\"{{UPDATED_IMAGE}}\"\n    }\n}"
 						},
 						"url": {
 							"raw": "{{APIURL}}/user",
