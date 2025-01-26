@@ -156,7 +156,14 @@ func (repo *UserRepository) UpdateUser(user *User) error {
 
 	result, err := repo.DB.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("error updating user: %w", err)
+		switch {
+		case err.Error() == "UNIQUE constraint failed: User.Username":
+			return ErrDuplicateUsername
+		case err.Error() == "UNIQUE constraint failed: User.Email":
+			return ErrDuplicateEmail
+		default:
+			return fmt.Errorf("error updating user: %w", err)
+		}
 	}
 	if rows, err := result.RowsAffected(); err != nil || rows == 0 {
 		return fmt.Errorf("error updating user - no rows were updated: %w", err)

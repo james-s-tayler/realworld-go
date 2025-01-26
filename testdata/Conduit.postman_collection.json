@@ -88,6 +88,77 @@
 					"response": []
 				},
 				{
+					"name": "Register (second user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (!(pm.environment.isIntegrationTest)) {",
+									"    var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"    pm.test('Response contains \"user\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('user');",
+									"    });",
+									"",
+									"    var user = responseJSON.user || {};",
+									"",
+									"    pm.test('\"email\" property matches SECOND_EMAIL variable', function() {",
+									"        const email = pm.globals.get('SECOND_EMAIL');",
+									"        pm.expect(user.email).to.eql(email);",
+									"    });",
+									"    pm.test('\"usermame\" property matches SECOND_USERNAME variable', function() {",
+									"        const username = pm.globals.get('SECOND_USERNAME');",
+									"        pm.expect(user.username).to.eql(username);",
+									"    });",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set(\"SECOND_EMAIL\", (Math.random() * 1000) + \"@example.com\")",
+									"pm.globals.set(\"SECOND_USERNAME\", (Math.random() * 1000) + \"\")"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{SECOND_EMAIL}}\", \"password\":\"{{PASSWORD}}\", \"username\":\"{{SECOND_USERNAME}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Register - validation failure - duplicate username",
 					"event": [
 						{
@@ -108,7 +179,7 @@
 									"    var errors = responseJSON.errors || {};",
 									"",
 									"    pm.test('\"username\" property is duplicate', function() {",
-									"       pm.expect(errors).to.have.property('username')",
+									"       pm.expect(errors.username).to.eql('duplicate username')",
 									"   　});",
 									"}"
 								],
@@ -176,7 +247,7 @@
 									"    var errors = responseJSON.errors || {};",
 									"",
 									"    pm.test('\"email\" property is duplicate', function() {",
-									"       pm.expect(errors).to.have.property('email')",
+									"       pm.expect(errors.email).to.eql('duplicate email')",
 									"   　});",
 									"}"
 								],
@@ -947,7 +1018,6 @@
 									"    pm.expect(responseJSON).to.have.property('errors');",
 									"});",
 									"",
-									"",
 									"var errors = responseJSON.errors || {};",
 									"",
 									"pm.test('\"email\" property must be valid email address', function() {",
@@ -1003,6 +1073,158 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"user\":{\n        \"username\":\"\",\n        \"email\":\"\",\n        \"password\":\"\",\n        \"bio\":\"\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/user",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User - validation failure - duplicate email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response is HTTP 422', function() {",
+									"        pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"email\" property is duplicate', function() {",
+									"    pm.expect(errors.email).to.equal('duplicate email')",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('UPDATED_USERNAME', (Math.random() * 1000) + 'user')",
+									"pm.globals.set('UPDATED_EMAIL', (Math.random() * 1000) + '@example.com')",
+									"pm.globals.set('UPDATED_PASSWORD', 'password' + (Math.random() * 1000))",
+									"pm.globals.set('UPDATED_BIO', 'I no longer work at statefarm')",
+									"pm.globals.set('UPDATED_IMAGE', 'https://i.stack.imgur.com/xHWG8.jpg')",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user\":{\n        \"email\":\"{{SECOND_EMAIL}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/user",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User - validation failure - duplicate username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response is HTTP 422', function() {",
+									"        pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"username\" property is duplicate', function() {",
+									"    pm.expect(errors.username).to.eql('duplicate username')",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('UPDATED_USERNAME', (Math.random() * 1000) + 'user')",
+									"pm.globals.set('UPDATED_EMAIL', (Math.random() * 1000) + '@example.com')",
+									"pm.globals.set('UPDATED_PASSWORD', 'password' + (Math.random() * 1000))",
+									"pm.globals.set('UPDATED_BIO', 'I no longer work at statefarm')",
+									"pm.globals.set('UPDATED_IMAGE', 'https://i.stack.imgur.com/xHWG8.jpg')",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user\":{\n        \"username\":\"{{SECOND_USERNAME}}\"\n    }\n}"
 						},
 						"url": {
 							"raw": "{{APIURL}}/user",
