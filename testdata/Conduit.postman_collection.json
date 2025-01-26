@@ -860,18 +860,18 @@
 									"",
 									"var user = responseJSON.user || {};",
 									"",
-									"pm.test('user.email matches the EMAIL variable', function() {",
+									"pm.test('\"email\" matches the UPDATED_EMAIL variable', function() {",
 									"    const email = pm.globals.get('UPDATED_EMAIL')",
 									"    pm.expect(user.email).to.eql(email)",
 									"});",
-									"pm.test('user.usermame matches USERNAME variable', function() {",
+									"pm.test('\"username\" matches UPDATED_USERNAME variable', function() {",
 									"    const username = pm.globals.get('UPDATED_USERNAME')",
 									"    pm.expect(user.username).to.eql(username)",
 									"});",
-									"pm.test('User has \"bio\" property', function() {",
+									"pm.test('\"bio\" matches the UPDATED_BIO variable', function() {",
 									"    pm.expect(user.bio).to.eql(pm.globals.get('UPDATED_BIO'))",
 									"});",
-									"pm.test('User has \"image\" property', function() {",
+									"pm.test('\"image\" matches the UPDATED_IMAGE variable', function() {",
 									"    pm.expect(user.image).to.eql(pm.globals.get('UPDATED_IMAGE'))",
 									"});",
 									"pm.test('User has \"token\" property', function() {",
@@ -917,6 +917,92 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"user\":{\n        \"username\":\"{{UPDATED_USERNAME}}\",\n        \"email\":\"{{UPDATED_EMAIL}}\",\n        \"password\":\"{{UPDATED_PASSWORD}}\",\n        \"bio\":\"{{UPDATED_BIO}}\",\n        \"image\":\"{{UPDATED_IMAGE}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/user",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User - validation failure - provided fields blank",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response is HTTP 422', function() {",
+									"        pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"email\" property must be valid email address', function() {",
+									"    pm.expect(errors).to.have.property('email')",
+									"});",
+									"pm.test('\"username\" property must be present', function() {",
+									"    pm.expect(errors).to.have.property('username')",
+									"});",
+									"pm.test('\"bio\" property must be present', function() {",
+									"    pm.expect(errors).to.have.property('bio')",
+									"});",
+									"pm.test('\"password\" property must be at least 8 characters', function() {",
+									"    pm.expect(errors).to.have.property('password')",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('UPDATED_USERNAME', (Math.random() * 1000) + 'user')",
+									"pm.globals.set('UPDATED_EMAIL', (Math.random() * 1000) + '@example.com')",
+									"pm.globals.set('UPDATED_PASSWORD', 'password' + (Math.random() * 1000))",
+									"pm.globals.set('UPDATED_BIO', 'I no longer work at statefarm')",
+									"pm.globals.set('UPDATED_IMAGE', 'https://i.stack.imgur.com/xHWG8.jpg')",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user\":{\n        \"username\":\"\",\n        \"email\":\"\",\n        \"password\":\"\",\n        \"bio\":\"\"\n    }\n}"
 						},
 						"url": {
 							"raw": "{{APIURL}}/user",
