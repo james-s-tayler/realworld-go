@@ -242,3 +242,18 @@ func (repo *UserRepository) Follow(userId, followUserId int) error {
 
 	return nil
 }
+
+func (repo *UserRepository) Unfollow(userId, followUserId int) error {
+	query := `DELETE FROM Follower WHERE UserId=$1 AND FollowUserId=$2`
+	args := []any{userId, followUserId}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	_, err := repo.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
