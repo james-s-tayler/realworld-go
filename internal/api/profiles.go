@@ -40,9 +40,14 @@ func (app *Application) getProfileHandler(w http.ResponseWriter, r *http.Request
 		Following: false,
 	}
 
-	//if userContext := app.getUserContext(r); userContext.isAuthenticated {
-	//
-	//}
+	if userContext := app.getUserContext(r); userContext.isAuthenticated {
+		isFollowing, err := app.domains.users.IsFollowing(userContext.userId, lookupUser.UserId)
+		if err != nil {
+			app.serveResponseErrorInternalServerError(w, err)
+			return
+		}
+		profile.Following = isFollowing
+	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"profile": profile}, nil)
 	if err != nil {

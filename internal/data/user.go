@@ -206,3 +206,24 @@ func (repo *UserRepository) UpdateUser(user *User) error {
 
 	return nil
 }
+
+func (repo *UserRepository) IsFollowing(userId, followUserId int) (bool, error) {
+	query := `SELECT EXISTS (SELECT 1 FROM Follower WHERE UserId = $1 AND FollowUserId = $2)`
+	args := []any{userId, followUserId}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	var isFollowing bool
+	err := repo.DB.QueryRowContext(ctx, query, args...).Scan(&isFollowing)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+
+	return isFollowing, nil
+}

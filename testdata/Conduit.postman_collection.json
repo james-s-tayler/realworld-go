@@ -2853,7 +2853,57 @@
 					"response": []
 				},
 				{
-					"name": "Profile - authenticated",
+					"name": "Follow Profile - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"celeb_{{USERNAME}}",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Follow Profile",
 					"event": [
 						{
 							"listen": "test",
@@ -2879,7 +2929,76 @@
 									"});",
 									"pm.test('Profile has \"following\" property', function() {",
 									"    pm.expect(profile).to.have.property('following')",
-									"    pm.expect(profile.following).to.eql(false)",
+									"    pm.expect(profile.following).to.eql(true)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"celeb_{{USERNAME}}",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile - authenticated - following",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"profile\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('profile')",
+									"});",
+									"",
+									"var profile = responseJSON.profile || {};",
+									"",
+									"pm.test('\"usermame\" matches celeb_ + USERNAME variable', function() {",
+									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    pm.expect(profile.username).to.eql(\"celeb_\" + username)",
+									"});",
+									"pm.test('Profile has \"bio\" property', function() {",
+									"    pm.expect(profile).to.have.property('bio')",
+									"});",
+									"pm.test('Profile has \"image\" property', function() {",
+									"    pm.expect(profile).to.have.property('image')",
+									"});",
+									"pm.test('Profile has \"following\" property equal true', function() {",
+									"    pm.expect(profile).to.have.property('following')",
+									"    pm.expect(profile.following).to.eql(true)",
 									"})"
 								],
 								"type": "text/javascript",
@@ -2911,6 +3030,70 @@
 							"path": [
 								"profiles",
 								"celeb_{{USERNAME}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile - authenticated - not following",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"profile\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('profile')",
+									"});",
+									"",
+									"var profile = responseJSON.profile || {};",
+									"",
+									"pm.test('\"usermame\" matches SECOND_USERNAME variable', function() {",
+									"    const username = pm.globals.get('SECOND_USERNAME');",
+									"    pm.expect(profile.username).to.eql(username)",
+									"});",
+									"pm.test('Profile has \"bio\" property', function() {",
+									"    pm.expect(profile).to.have.property('bio')",
+									"});",
+									"pm.test('Profile has \"image\" property', function() {",
+									"    pm.expect(profile).to.have.property('image')",
+									"});",
+									"pm.test('Profile has \"following\" property equal false', function() {",
+									"    pm.expect(profile).to.have.property('following')",
+									"    pm.expect(profile.following).to.eql(false)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{APIURL}}/profiles/{{SECOND_USERNAME}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"{{SECOND_USERNAME}}"
 							]
 						}
 					},
@@ -3065,125 +3248,6 @@
 							"path": [
 								"profiles",
 								"celeb_{{USERNAME}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Follow Profile",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"pm.test('Response contains \"profile\" property', function() {",
-									"    pm.expect(responseJSON).to.have.property('profile')",
-									"});",
-									"",
-									"var profile = responseJSON.profile || {};",
-									"",
-									"pm.test('\"usermame\" matches celeb_ + USERNAME variable', function() {",
-									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
-									"    pm.expect(profile.username).to.eql(\"celeb_\" + username)",
-									"});",
-									"pm.test('Profile has \"bio\" property', function() {",
-									"    pm.expect(profile).to.have.property('bio')",
-									"});",
-									"pm.test('Profile has \"image\" property', function() {",
-									"    pm.expect(profile).to.have.property('image')",
-									"});",
-									"pm.test('Profile has \"following\" property', function() {",
-									"    pm.expect(profile).to.have.property('following')",
-									"    pm.expect(profile.following).to.eql(true)",
-									"})"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
-						},
-						"url": {
-							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"profiles",
-								"celeb_{{USERNAME}}",
-								"follow"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Follow Profile - unauthenticated",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Response is HTTP 401', function() {",
-									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
-									"})"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
-						},
-						"url": {
-							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"profiles",
-								"celeb_{{USERNAME}}",
-								"follow"
 							]
 						}
 					},
