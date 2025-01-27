@@ -2799,23 +2799,28 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"if (!(pm.environment.isIntegrationTest)) {",
-									"var responseJSON = JSON.parse(pm.response.text());",
+									"    var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test['Response contains \"user\" property'] = responseJSON.hasOwnProperty('user');",
+									"    pm.test('Response contains \"user\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('user');",
+									"    });",
 									"",
-									"var user = responseJSON.user || {};",
+									"    var user = responseJSON.user || {};",
 									"",
-									"pm.test['User has \"email\" property'] = user.hasOwnProperty('email');",
-									"pm.test['User has \"username\" property'] = user.hasOwnProperty('username');",
-									"pm.test['User has \"bio\" property'] = user.hasOwnProperty('bio');",
-									"pm.test['User has \"image\" property'] = user.hasOwnProperty('image');",
-									"pm.test['User has \"token\" property'] = user.hasOwnProperty('token');",
-									"}",
-									""
-								]
+									"    pm.test('\"email\" property matches celeb_ + EMAIL variable', function() {",
+									"        const email = pm.globals.get('EMAIL') || pm.environment.get('EMAIL');",
+									"        pm.expect(user.email).to.eql(\"celeb_\" + email);",
+									"    });",
+									"    pm.test('\"usermame\" property matches celeb_ + USERNAME variable', function() {",
+									"        const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME');",
+									"        pm.expect(user.username).to.eql(\"celeb_\" + username);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2848,33 +2853,101 @@
 					"response": []
 				},
 				{
-					"name": "Profile",
+					"name": "Profile - authenticated",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"if (!(pm.environment.isIntegrationTest)) {",
-									"var is200Response = pm.response.code === 200;",
+									"var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
+									"pm.test('Response contains \"profile\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('profile')",
+									"});",
 									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
+									"var profile = responseJSON.profile || {};",
 									"",
-									"    pm.test['Response contains \"profile\" property'] = responseJSON.hasOwnProperty('profile');",
-									"    ",
-									"    var profile = responseJSON.profile || {};",
-									"    ",
-									"    pm.test['Profile has \"username\" property'] = profile.hasOwnProperty('username');",
-									"    pm.test['Profile has \"bio\" property'] = profile.hasOwnProperty('bio');",
-									"    pm.test['Profile has \"image\" property'] = profile.hasOwnProperty('image');",
-									"    pm.test['Profile has \"following\" property'] = profile.hasOwnProperty('following');",
-									"}",
-									"}",
-									""
-								]
+									"pm.test('\"usermame\" matches celeb_ + USERNAME variable', function() {",
+									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    pm.expect(profile.username).to.eql(\"celeb_\" + username)",
+									"});",
+									"pm.test('Profile has \"bio\" property', function() {",
+									"    pm.expect(profile).to.have.property('bio')",
+									"});",
+									"pm.test('Profile has \"image\" property', function() {",
+									"    pm.expect(profile).to.have.property('image')",
+									"});",
+									"pm.test('Profile has \"following\" property', function() {",
+									"    pm.expect(profile).to.have.property('following')",
+									"    pm.expect(profile.following).to.eql(false)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"celeb_{{USERNAME}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Profile - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"profile\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('profile')",
+									"});",
+									"",
+									"var profile = responseJSON.profile || {};",
+									"",
+									"pm.test('\"usermame\" matches celeb_ + USERNAME variable', function() {",
+									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    pm.expect(profile.username).to.eql(\"celeb_\" + username)",
+									"});",
+									"pm.test('Profile has \"bio\" property', function() {",
+									"    pm.expect(profile).to.have.property('bio')",
+									"});",
+									"pm.test('Profile has \"image\" property', function() {",
+									"    pm.expect(profile).to.have.property('image')",
+									"});",
+									"pm.test('Profile has \"following\" property', function() {",
+									"    pm.expect(profile).to.have.property('following')",
+									"    pm.expect(profile.following).to.eql(false)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2913,29 +2986,82 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"if (!(pm.environment.isIntegrationTest)) {",
-									"var is200Response = pm.response.code === 200;",
+									"var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
+									"pm.test('Response contains \"profile\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('profile')",
+									"});",
 									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
+									"var profile = responseJSON.profile || {};",
 									"",
-									"    pm.test['Response contains \"profile\" property'] = responseJSON.hasOwnProperty('profile');",
-									"    ",
-									"    var profile = responseJSON.profile || {};",
-									"    ",
-									"    pm.test['Profile has \"username\" property'] = profile.hasOwnProperty('username');",
-									"    pm.test['Profile has \"bio\" property'] = profile.hasOwnProperty('bio');",
-									"    pm.test['Profile has \"image\" property'] = profile.hasOwnProperty('image');",
-									"    pm.test['Profile has \"following\" property'] = profile.hasOwnProperty('following');",
-									"    pm.test['Profile\\'s \"following\" property is true'] = profile.following === true;",
-									"}",
-									"}",
-									""
-								]
+									"pm.test('\"usermame\" matches celeb_ + USERNAME variable', function() {",
+									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    pm.expect(profile.username).to.eql(\"celeb_\" + username)",
+									"});",
+									"pm.test('Profile has \"bio\" property', function() {",
+									"    pm.expect(profile).to.have.property('bio')",
+									"});",
+									"pm.test('Profile has \"image\" property', function() {",
+									"    pm.expect(profile).to.have.property('image')",
+									"});",
+									"pm.test('Profile has \"following\" property', function() {",
+									"    pm.expect(profile).to.have.property('following')",
+									"    pm.expect(profile.following).to.eql(true)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"celeb_{{USERNAME}}",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Follow Profile - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2979,29 +3105,32 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"if (!(pm.environment.isIntegrationTest)) {",
-									"var is200Response = pm.response.code === 200;",
+									"var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
+									"pm.test('Response contains \"profile\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('profile')",
+									"});",
 									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
+									"var profile = responseJSON.profile || {};",
 									"",
-									"    pm.test['Response contains \"profile\" property'] = responseJSON.hasOwnProperty('profile');",
-									"    ",
-									"    var profile = responseJSON.profile || {};",
-									"    ",
-									"    pm.test['Profile has \"username\" property'] = profile.hasOwnProperty('username');",
-									"    pm.test['Profile has \"bio\" property'] = profile.hasOwnProperty('bio');",
-									"    pm.test['Profile has \"image\" property'] = profile.hasOwnProperty('image');",
-									"    pm.test['Profile has \"following\" property'] = profile.hasOwnProperty('following');",
-									"    pm.test['Profile\\'s \"following\" property is false'] = profile.following === false;",
-									"}",
-									"}",
-									""
-								]
+									"pm.test('\"usermame\" matches celeb_ + USERNAME variable', function() {",
+									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    pm.expect(profile.username).to.eql(\"celeb_\" + username)",
+									"});",
+									"pm.test('Profile has \"bio\" property', function() {",
+									"    pm.expect(profile).to.have.property('bio')",
+									"});",
+									"pm.test('Profile has \"image\" property', function() {",
+									"    pm.expect(profile).to.have.property('image')",
+									"});",
+									"pm.test('Profile has \"following\" property', function() {",
+									"    pm.expect(profile).to.have.property('following')",
+									"    pm.expect(profile.following).to.eql(false)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -3019,6 +3148,57 @@
 							{
 								"key": "Authorization",
 								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"celeb_{{USERNAME}}",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unfollow Profile - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}",
+								"disabled": true
 							}
 						],
 						"body": {
