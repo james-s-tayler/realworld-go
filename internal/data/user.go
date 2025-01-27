@@ -12,7 +12,7 @@ import (
 )
 
 type User struct {
-	Id       int      `json:"-"`
+	UserId   int      `json:"-"`
 	Email    string   `json:"email"`
 	Token    string   `json:"token"`
 	Username string   `json:"username"`
@@ -57,13 +57,13 @@ type UserRepository struct {
 
 func (repo *UserRepository) RegisterUser(user *User) (*User, error) {
 
-	query := `INSERT INTO USER (Email, Username, PasswordHash, Bio) VALUES($1,$2,$3,$4) RETURNING Id`
+	query := `INSERT INTO USER (Email, Username, PasswordHash, Bio) VALUES($1,$2,$3,$4) RETURNING UserId`
 	args := []any{user.Email, user.Username, user.Password.hash, user.Bio}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
 
-	err := repo.DB.QueryRowContext(ctx, query, args...).Scan(&user.Id)
+	err := repo.DB.QueryRowContext(ctx, query, args...).Scan(&user.UserId)
 	if err != nil {
 		switch {
 		case err.Error() == "UNIQUE constraint failed: User.Username":
@@ -80,7 +80,7 @@ func (repo *UserRepository) RegisterUser(user *User) (*User, error) {
 
 func (repo *UserRepository) GetUserByCredentials(email string, password string) (*User, error) {
 
-	query := `SELECT Id, Username, Bio, Image, PasswordHash FROM User WHERE Email = $1`
+	query := `SELECT UserId, Username, Bio, Image, PasswordHash FROM User WHERE Email = $1`
 	args := []any{email}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
@@ -91,7 +91,7 @@ func (repo *UserRepository) GetUserByCredentials(email string, password string) 
 	}
 
 	err := repo.DB.QueryRowContext(ctx, query, args...).Scan(
-		&user.Id,
+		&user.UserId,
 		&user.Username,
 		&user.Bio,
 		&user.Image,
@@ -120,12 +120,12 @@ func (repo *UserRepository) GetUserByCredentials(email string, password string) 
 }
 
 func (repo *UserRepository) GetUserById(userId int) (*User, error) {
-	query := `SELECT Username, Email, Bio, Image, PasswordHash FROM User WHERE Id = $1`
+	query := `SELECT Username, Email, Bio, Image, PasswordHash FROM User WHERE UserId = $1`
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
 
 	user := &User{
-		Id: userId,
+		UserId: userId,
 	}
 
 	err := repo.DB.QueryRowContext(ctx, query, userId).Scan(
@@ -148,7 +148,7 @@ func (repo *UserRepository) GetUserById(userId int) (*User, error) {
 }
 
 func (repo *UserRepository) GetUserByUsername(username string) (*User, error) {
-	query := `SELECT Id, Email, Bio, Image, PasswordHash FROM User WHERE Username = $1`
+	query := `SELECT UserId, Email, Bio, Image, PasswordHash FROM User WHERE Username = $1`
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
 
@@ -157,7 +157,7 @@ func (repo *UserRepository) GetUserByUsername(username string) (*User, error) {
 	}
 
 	err := repo.DB.QueryRowContext(ctx, query, username).Scan(
-		&user.Id,
+		&user.UserId,
 		&user.Email,
 		&user.Bio,
 		&user.Image,
@@ -176,14 +176,14 @@ func (repo *UserRepository) GetUserByUsername(username string) (*User, error) {
 }
 
 func (repo *UserRepository) UpdateUser(user *User) error {
-	query := `UPDATE User SET (Username, Email, PasswordHash, Bio, Image) = ($1, $2, $3, $4, $5) WHERE Id = $6`
+	query := `UPDATE User SET (Username, Email, PasswordHash, Bio, Image) = ($1, $2, $3, $4, $5) WHERE UserId = $6`
 	args := []any{
 		user.Username,
 		user.Email,
 		user.Password.hash,
 		user.Bio,
 		user.Image,
-		user.Id,
+		user.UserId,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
