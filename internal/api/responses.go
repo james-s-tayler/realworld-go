@@ -26,3 +26,7 @@ func (app *Application) serveResponseErrorUnprocessableEntity(w http.ResponseWri
 		app.serveResponseErrorInternalServerError(w, err)
 	}
 }
+
+func (app *Application) serveResponseErrorNotFound(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+}

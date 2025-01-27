@@ -21,6 +21,13 @@ type User struct {
 	Password Password `json:"-"`
 }
 
+type Profile struct {
+	Username  string  `json:"username"`
+	Bio       string  `json:"bio"`
+	Image     *string `json:"image"`
+	Following bool    `json:"following"`
+}
+
 func (u *User) Validate(v *validator.Validator) {
 	v.Check(v.Matches(u.Email, validator.EmailRX), "email", "must be a valid email address")
 	v.Check(u.Username != "", "username", "must not be empty")
@@ -123,6 +130,34 @@ func (repo *UserRepository) GetUserById(userId int) (*User, error) {
 
 	err := repo.DB.QueryRowContext(ctx, query, userId).Scan(
 		&user.Username,
+		&user.Email,
+		&user.Bio,
+		&user.Image,
+		&user.Password.hash,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrUserNotFound
+		default:
+			return nil, fmt.Errorf("an unexpected error occurred when retrieving the user: %w", err)
+		}
+	}
+
+	return user, nil
+}
+
+func (repo *UserRepository) GetUserByUsername(username string) (*User, error) {
+	query := `SELECT Id, Email, Bio, Image, PasswordHash FROM User WHERE Username = $1`
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	user := &User{
+		Username: username,
+	}
+
+	err := repo.DB.QueryRowContext(ctx, query, username).Scan(
+		&user.Id,
 		&user.Email,
 		&user.Bio,
 		&user.Image,

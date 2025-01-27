@@ -6,3 +6,4 @@ go install -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate@late
 migrate create -seq -ext=.sql -dir=./migrations create_users_table
 go get golang.org/x/crypto/bcrypt@latest
 go get github.com/golang-jwt/jwt/v5
+migrate create -seq -ext=.sql -dir=./migrations create_followers_table
