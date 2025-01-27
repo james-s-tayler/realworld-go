@@ -227,3 +227,18 @@ func (repo *UserRepository) IsFollowing(userId, followUserId int) (bool, error) 
 
 	return isFollowing, nil
 }
+
+func (repo *UserRepository) Follow(userId, followUserId int) error {
+	query := `INSERT OR IGNORE INTO Follower (UserId, FollowUserId) VALUES ($1, $2)`
+	args := []any{userId, followUserId}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	_, err := repo.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

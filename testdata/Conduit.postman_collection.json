@@ -2881,7 +2881,8 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{token}}"
+								"value": "Token {{token}}",
+								"disabled": true
 							}
 						],
 						"body": {
@@ -2965,6 +2966,125 @@
 							"path": [
 								"profiles",
 								"celeb_{{USERNAME}}",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Follow Profile - already following",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"profile\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('profile')",
+									"});",
+									"",
+									"var profile = responseJSON.profile || {};",
+									"",
+									"pm.test('\"usermame\" matches celeb_ + USERNAME variable', function() {",
+									"    const username = pm.globals.get('USERNAME') || pm.environment.get('USERNAME')",
+									"    pm.expect(profile.username).to.eql(\"celeb_\" + username)",
+									"});",
+									"pm.test('Profile has \"bio\" property', function() {",
+									"    pm.expect(profile).to.have.property('bio')",
+									"});",
+									"pm.test('Profile has \"image\" property', function() {",
+									"    pm.expect(profile).to.have.property('image')",
+									"});",
+									"pm.test('Profile has \"following\" property', function() {",
+									"    pm.expect(profile).to.have.property('following')",
+									"    pm.expect(profile.following).to.eql(true)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"celeb_{{USERNAME}}",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Follow Profile - validation - user doesn't exist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 404', function() {",
+									"    pm.expect(pm.response.status).to.eql('Not Found')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{EMAIL}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/nonexistentuser_{{USERNAME}}/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"nonexistentuser_{{USERNAME}}",
 								"follow"
 							]
 						}
@@ -3132,13 +3252,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}",
+							"raw": "{{APIURL}}/profiles/nonexistant_{{USERNAME}}",
 							"host": [
 								"{{APIURL}}"
 							],
 							"path": [
 								"profiles",
-								"celeb_{{USERNAME}}"
+								"nonexistant_{{USERNAME}}"
 							]
 						}
 					},
@@ -3237,7 +3357,8 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{token}}"
+								"value": "Token {{token}}",
+								"disabled": true
 							}
 						],
 						"url": {
@@ -3248,6 +3369,57 @@
 							"path": [
 								"profiles",
 								"celeb_{{USERNAME}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unfollow Profile - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{token}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/celeb_{{USERNAME}}/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"celeb_{{USERNAME}}",
+								"follow"
 							]
 						}
 					},
@@ -3323,15 +3495,27 @@
 					"response": []
 				},
 				{
-					"name": "Unfollow Profile - unauthenticated",
+					"name": "Unfollow Profile - not already following",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test('Response is HTTP 401', function() {",
-									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
-									"})"
+									"pm.test('Response is HTTP 422', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors')",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"username\" not already following', function() {",
+									"    pm.expect(errors).to.have.property('username')",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -3351,8 +3535,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{token}}",
-								"disabled": true
+								"value": "Token {{token}}"
 							}
 						],
 						"body": {
