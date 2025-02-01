@@ -120,6 +120,8 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 
 func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 
+	// need to save and load tags
+
 	query := `SELECT 
 				a.Title,
 				a.Slug,
@@ -127,6 +129,8 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 				a.Body,
 				a.CreatedAt,
 				a.UpdatedAt,
+				(SELECT EXISTS(SELECT 1 FROM ArticleFavorite WHERE ArticleId=a.ArticleId AND UserId=$1)) AS Favorited,
+				(SELECT COUNT(*) FROM ArticleFavorite WHERE ArticleId=a.ArticleId) AS FavoritesCount,
 				u.Username,
 				u.Bio,
 				u.Image
@@ -149,6 +153,8 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 		&article.Body,
 		&createdAt,
 		&updatedAt,
+		&article.Favorited,
+		&article.FavoritesCount,
 		&author.Username,
 		&author.Bio,
 		&author.Image,
