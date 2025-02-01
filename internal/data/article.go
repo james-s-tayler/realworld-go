@@ -1,8 +1,11 @@
 package data
 
 import (
+	"database/sql"
 	"net/http"
 	"time"
+
+	"realworld.tayler.io/internal/validator"
 )
 
 type ArticleFilters struct {
@@ -28,6 +31,15 @@ type Article struct {
 	Body string `json:"body"`
 }
 
+type CreateArticleDTO struct {
+	Article struct {
+		Title       *string  `json:"title"`
+		Description *string  `json:"description"`
+		Body        *string  `json:"body"`
+		TagList     []string `json:"tagList"`
+	} `json:"article"`
+}
+
 func (f *ArticleFilters) ParseFilters(r *http.Request) {
 	if r.URL.Query().Has("tag") {
 		value := r.URL.Query().Get("tag")
@@ -41,4 +53,29 @@ func (f *ArticleFilters) ParseFilters(r *http.Request) {
 		value := r.URL.Query().Get("favorited")
 		f.Favorited = &value
 	}
+}
+
+func (article CreateArticleDTO) Validate(v *validator.Validator) {
+	v.Check(article.Article.Body != nil && *article.Article.Body != "", "body", "must not be empty")
+	v.Check(article.Article.Description != nil && *article.Article.Description != "", "description", "must not be empty")
+	v.Check(article.Article.Title != nil && *article.Article.Title != "", "title", "must not be empty")
+}
+
+type ArticleRepository struct {
+	DB             *sql.DB
+	TimeoutSeconds int
+}
+
+func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO) (*Article, error) {
+
+	article := &Article{
+		BodylessArticle: BodylessArticle{
+			Title:       *articleDto.Article.Title,
+			Description: *articleDto.Article.Description,
+			TagList:     articleDto.Article.TagList,
+		},
+		Body: *articleDto.Article.Body,
+	}
+
+	return article, nil
 }

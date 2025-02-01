@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"realworld.tayler.io/internal/data"
+	"realworld.tayler.io/internal/validator"
 )
 
 // GET /api/articles
@@ -31,7 +32,31 @@ func (app *Application) getFeedHandler(w http.ResponseWriter, r *http.Request) {
 
 // POST /api/articles
 func (app *Application) createArticleHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+	var input data.CreateArticleDTO
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	v := validator.New()
+
+	if input.Validate(v); !v.Valid() {
+		app.serveResponseErrorUnprocessableEntity(w, v)
+		return
+	}
+
+	article, err := app.domains.articles.CreateArticle(input)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusCreated, envelope{"article": article}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+	}
 }
 
 // PUT /api/articles/:slug

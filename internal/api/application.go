@@ -35,7 +35,8 @@ type Config struct {
 }
 
 type domains struct {
-	users data.UserRepository
+	users    data.UserRepository
+	articles data.ArticleRepository
 }
 
 type envelope map[string]any
@@ -55,6 +56,10 @@ func NewApp(config Config) (*Application, func(), error) {
 		logger: logger,
 		domains: domains{
 			users: data.UserRepository{
+				DB:             db,
+				TimeoutSeconds: config.DB.TimeoutSeconds,
+			},
+			articles: data.ArticleRepository{
 				DB:             db,
 				TimeoutSeconds: config.DB.TimeoutSeconds,
 			},

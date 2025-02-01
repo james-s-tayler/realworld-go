@@ -1497,40 +1497,218 @@
 			]
 		},
 		{
-			"name": "Articles, Favorite, Comments",
+			"name": "Articles",
 			"item": [
+				{
+					"name": "Register Articles User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (!(pm.environment.isIntegrationTest)) {",
+									"    var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"    pm.test('Response contains \"user\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('user');",
+									"    });",
+									"",
+									"    var user = responseJSON.user || {};",
+									"",
+									"    pm.test('\"email\" property matches ARTICLES_USER_EMAIL variable', function() {",
+									"        const email = pm.globals.get('ARTICLES_USER_EMAIL');",
+									"        pm.expect(user.email).to.eql(email);",
+									"    });",
+									"    pm.test('\"usermame\" property matches ARTICLES_USER_USERNAME variable', function() {",
+									"        const username = pm.globals.get('ARTICLES_USER_USERNAME');",
+									"        pm.expect(user.username).to.eql(username);",
+									"    });",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set(\"ARTICLES_USER_EMAIL\", (Math.random() * 1000) + \"@example.com\")",
+									"pm.globals.set(\"ARTICLES_USER_USERNAME\", (Math.random() * 1000) + \"\")"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{ARTICLES_USER_EMAIL}}\", \"password\":\"{{PASSWORD}}\", \"username\":\"{{ARTICLES_USER_USERNAME}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login and Remember Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"user\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('user')",
+									"});",
+									"",
+									"var user = responseJSON.user || {};",
+									"",
+									"pm.test('User has \"token\" property', function() {",
+									"    pm.expect(user).to.have.property('token')",
+									"});",
+									"",
+									"if(pm.test('User has \"token\" property')){",
+									"    pm.globals.set('articles_user_token', user.token);",
+									"}",
+									"",
+									"pm.test('Global variable \"articles_user_token\" has been set', function() {",
+									"    pm.globals.get('articles_user_token') === user.token",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{ARTICLES_USER_EMAIL}}\", \"password\":\"{{PASSWORD}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users/login",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "Create Article",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
+									"pm.test('Response contains \"article\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('article');",
+									"});",
 									"",
 									"var article = responseJSON.article || {};",
 									"",
-									"pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"pm.globals.set('slug', article.slug);",
+									"pm.test('Article contains \"title\" property', function() {",
+									"    pm.expect(article).to.have.property('title');",
+									"});",
+									"pm.test('Article contains \"slug\" property', function() {",
+									"    pm.expect(article).to.have.property('slug');",
+									"});",
 									"",
-									"pm.test['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
+									"if(pm.test('Article contains \"slug\" property')) {",
+									"    pm.globals.set('slug', article.slug);",
+									"}",
+									"",
+									"pm.test('Article contains \"body\" property', function() {",
+									"    pm.expect(article).to.have.property('body');",
+									"});",
+									"pm.test('Article contains \"createdAt\" property', function() {",
+									"    pm.expect(article).to.have.property('createdAt');",
+									"});",
+									"pm.test('Article\\'s \"createdAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
+									"});",
+									"pm.test('Article contains \"updatedAt\" property', function() {",
+									"    pm.expect(article).to.have.property('updatedAt');",
+									"});",
+									"pm.test('Article\\'s \"updatedAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
+									"});",
+									"",
+									"pm.test('Article contains \"description\" property', function() {",
+									"    pm.expect(article).to.have.property('description');",
+									"});",
+									"pm.test('Article contains \"tagList\" property', function() {",
+									"    pm.expect(article).to.have.property('tagList');",
+									"});",
+									"pm.test('Article\\'s \"tagList\" property is an Array', function() {",
+									"    Array.isArray(article.tagList);",
+									"});",
+									"pm.test('Article contains \"author\" property', function() {",
+									"    pm.expect(article).to.have.property('author');",
+									"});",
+									"pm.test('Article contains \"favorited\" property', function() {",
+									"    pm.expect(article).to.have.property('favorited');",
+									"});",
+									"pm.test('Article contains \"favoritesCount\" property', function() {",
+									"    pm.expect(article).to.have.property('favoritesCount');",
+									"});",
+									"pm.test('favoritesCount is an integer', function() {",
+									"    Number.isInteger(article.favoritesCount);",
+									"});",
 									""
-								]
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1547,7 +1725,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{token}}"
+								"value": "Token {{articles_user_token}}"
 							}
 						],
 						"body": {
@@ -1566,6 +1744,60 @@
 					},
 					"response": []
 				},
+				{
+					"name": "Create Article - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"article\":{\"title\":\"How to train your dragon\", \"description\":\"Ever wonder how?\", \"body\":\"Very carefully.\", \"tagList\":[\"training\", \"dragons\"]}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Articles, Favorite, Comments",
+			"item": [
 				{
 					"name": "Feed",
 					"event": [
