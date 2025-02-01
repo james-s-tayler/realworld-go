@@ -1,11 +1,19 @@
 package data
 
 import (
+	"context"
 	"database/sql"
+	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"realworld.tayler.io/internal/validator"
+)
+
+var (
+	ErrArticleNotFound = errors.New("article not found")
 )
 
 type ArticleFilters struct {
@@ -61,21 +69,110 @@ func (article CreateArticleDTO) Validate(v *validator.Validator) {
 	v.Check(article.Article.Title != nil && *article.Article.Title != "", "title", "must not be empty")
 }
 
+func (article CreateArticleDTO) GetSlug() string {
+	return strings.ToLower(strings.ReplaceAll(*article.Article.Title, " ", "-"))
+}
+
 type ArticleRepository struct {
 	DB             *sql.DB
 	TimeoutSeconds int
 }
 
-func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO) (*Article, error) {
+func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId int) (*Article, error) {
 
-	article := &Article{
-		BodylessArticle: BodylessArticle{
-			Title:       *articleDto.Article.Title,
-			Description: *articleDto.Article.Description,
-			TagList:     articleDto.Article.TagList,
-		},
-		Body: *articleDto.Article.Body,
+	query := `INSERT INTO Article 
+				(UserId, Slug, Title, Description, Body, CreatedAt, UpdatedAt) 
+				VALUES ($1, $2, $3, $4, $5, $6, $7) 
+				RETURNING ArticleId`
+
+	now := time.Now().UTC().Format(time.RFC3339Nano)
+
+	args := []any{
+		userId,
+		articleDto.GetSlug(),
+		*articleDto.Article.Title,
+		*articleDto.Article.Description,
+		*articleDto.Article.Body,
+		now,
+		now,
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	// start a transaction
+
+	var articleId int
+	err := repo.DB.QueryRowContext(ctx, query, args...).Scan(&articleId)
+	if err != nil {
+		return nil, fmt.Errorf("an error occurred when saving article: %w", err)
+	}
+
+	article, err := repo.GetArticleBySlug(articleDto.GetSlug())
+	if err != nil {
+		return nil, fmt.Errorf("an error occurred when looking up article by slug after saving: %w", err)
+	}
+
+	//end transaction
+
 	return article, nil
+}
+
+func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
+
+	query := `SELECT 
+				a.Title,
+				a.Slug,
+				a.Description,
+				a.Body,
+				a.CreatedAt,
+				a.UpdatedAt,
+				u.Username,
+				u.Bio,
+				u.Image
+			  FROM Article a
+			  JOIN User u ON a.UserId = u.UserId 
+			  WHERE a.Slug = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	var article Article
+	var author Profile
+
+	var createdAt string
+	var updatedAt string
+	err := repo.DB.QueryRowContext(ctx, query, slug).Scan(
+		&article.Title,
+		&article.Slug,
+		&article.Description,
+		&article.Body,
+		&createdAt,
+		&updatedAt,
+		&author.Username,
+		&author.Bio,
+		&author.Image,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrArticleNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	article.CreatedAt, err = time.Parse(time.RFC3339Nano, createdAt)
+	if err != nil {
+		return nil, err
+	}
+
+	article.UpdatedAt, err = time.Parse(time.RFC3339Nano, updatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	article.Author = &author
+
+	return &article, nil
 }

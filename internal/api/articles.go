@@ -47,7 +47,7 @@ func (app *Application) createArticleHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	article, err := app.domains.articles.CreateArticle(input)
+	article, err := app.domains.articles.CreateArticle(input, app.getUserContext(r).userId)
 	if err != nil {
 		app.serveResponseErrorInternalServerError(w, err)
 		return
