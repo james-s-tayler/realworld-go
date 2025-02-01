@@ -1,0 +1,6 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE Tag (
+    TagId INTEGER NOT NULL PRIMARY KEY,
+    Tag TEXT NOT NULL UNIQUE
+);

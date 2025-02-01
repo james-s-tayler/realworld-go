@@ -81,6 +81,13 @@ func OpenDB(config Config, logger *slog.Logger) (*sql.DB, func(), error) {
 		return nil, nil, err
 	}
 
+	// Enable foreign keys - this is required on every connection for sqlite
+	// since sqlite doesn't enforce foreign keys by default for backwards compatibility reasons
+	_, err = db.ExecContext(ctx, "PRAGMA foreign_keys = ON;")
+	if err != nil {
+		return nil, nil, err
+	}
+
 	closeDb := func() {
 		if err = db.Close(); err != nil {
 			logger.Error(err.Error())
@@ -106,7 +113,7 @@ func (app *Application) writeJSON(w http.ResponseWriter, status int, data envelo
 		w.Header()[key] = value
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	w.Write(js)
 

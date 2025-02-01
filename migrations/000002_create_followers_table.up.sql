@@ -1,3 +1,5 @@
+PRAGMA foreign_keys = ON;
+
 CREATE TABLE Follower (
     UserId INTEGER NOT NULL,
     FollowUserId INTEGER NOT NULL,
