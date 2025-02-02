@@ -1,6 +1,7 @@
 package conduit
 
 import (
+	"errors"
 	"net/http"
 
 	"realworld.tayler.io/internal/data"
@@ -49,7 +50,13 @@ func (app *Application) createArticleHandler(w http.ResponseWriter, r *http.Requ
 
 	article, err := app.domains.articles.CreateArticle(input, app.getUserContext(r).userId)
 	if err != nil {
-		app.serveResponseErrorInternalServerError(w, err)
+		switch {
+		case errors.Is(err, data.ErrDuplicateSlug):
+			v.AddError("slug", "duplicate slug")
+			app.serveResponseErrorUnprocessableEntity(w, v)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
 		return
 	}
 

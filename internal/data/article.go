@@ -14,6 +14,7 @@ import (
 
 var (
 	ErrArticleNotFound = errors.New("article not found")
+	ErrDuplicateSlug   = errors.New("duplicate slug")
 )
 
 type ArticleFilters struct {
@@ -113,7 +114,12 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 	var articleId int
 	err = tx.QueryRowContext(ctx, query, args...).Scan(&articleId)
 	if err != nil {
-		return nil, fmt.Errorf("an error occurred when saving article: %w", err)
+		switch {
+		case err.Error() == "UNIQUE constraint failed: Article.Slug":
+			return nil, ErrDuplicateSlug
+		default:
+			return nil, fmt.Errorf("an error occurred when saving article: %w", err)
+		}
 	}
 
 	for _, tag := range articleDto.Article.TagList {
