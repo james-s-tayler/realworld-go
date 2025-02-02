@@ -101,9 +101,14 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 	defer cancel()
 
 	// start a transaction
+	tx, err := repo.DB.BeginTx(ctx, nil)
+
+	if err != nil {
+		return nil, fmt.Errorf("an error occurred when starting a transaction while attempting to save an article: %w", err)
+	}
 
 	var articleId int
-	err := repo.DB.QueryRowContext(ctx, query, args...).Scan(&articleId)
+	err = tx.QueryRowContext(ctx, query, args...).Scan(&articleId)
 	if err != nil {
 		return nil, fmt.Errorf("an error occurred when saving article: %w", err)
 	}
@@ -112,29 +117,32 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 		selectTagIdQuery := `SELECT t.TagId FROM Tag t WHERE t.Tag = $1`
 		var tagId int
 
-		err = repo.DB.QueryRowContext(ctx, selectTagIdQuery, tag).Scan(&tagId)
+		err = tx.QueryRowContext(ctx, selectTagIdQuery, tag).Scan(&tagId)
 		if err == sql.ErrNoRows {
 
 			insertTagQuery := `INSERT INTO Tag (Tag) VALUES ($1) RETURNING TagId`
-			err = repo.DB.QueryRowContext(ctx, insertTagQuery, tag).Scan(&tagId)
+			err = tx.QueryRowContext(ctx, insertTagQuery, tag).Scan(&tagId)
 			if err != nil {
 				return nil, fmt.Errorf("an error occurred when attempting to save a tag: %w", err)
 			}
 		}
 
 		insertArticleTagQuery := `INSERT OR IGNORE INTO ArticleTag (ArticleId, TagId) VALUES ($1, $2)`
-		_, err = repo.DB.ExecContext(ctx, insertArticleTagQuery, articleId, tagId)
+		_, err = tx.ExecContext(ctx, insertArticleTagQuery, articleId, tagId)
 		if err != nil {
 			return nil, fmt.Errorf("an error occurred when attempting to tag an article: %w", err)
 		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, fmt.Errorf("an error occurred when attempting to commit the transaction while saving an article: %w", err)
 	}
 
 	article, err := repo.GetArticleBySlug(articleDto.GetSlug())
 	if err != nil {
 		return nil, fmt.Errorf("an error occurred when looking up article by slug after saving: %w", err)
 	}
-
-	//end transaction
 
 	return article, nil
 }
