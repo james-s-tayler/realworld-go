@@ -67,6 +67,10 @@ func (article CreateArticleDTO) Validate(v *validator.Validator) {
 	v.Check(article.Article.Body != nil && *article.Article.Body != "", "body", "must not be empty")
 	v.Check(article.Article.Description != nil && *article.Article.Description != "", "description", "must not be empty")
 	v.Check(article.Article.Title != nil && *article.Article.Title != "", "title", "must not be empty")
+	for _, tag := range article.Article.TagList {
+		v.Check(tag != "", "tagList", "tag must not be blank")
+		v.Check(!strings.Contains(tag, ","), "tagList", "must not contain ','")
+	}
 }
 
 func (article CreateArticleDTO) GetSlug() string {
@@ -100,7 +104,6 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
 
-	// start a transaction
 	tx, err := repo.DB.BeginTx(ctx, nil)
 
 	if err != nil {
