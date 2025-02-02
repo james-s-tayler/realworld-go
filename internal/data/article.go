@@ -108,6 +108,27 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 		return nil, fmt.Errorf("an error occurred when saving article: %w", err)
 	}
 
+	for _, tag := range articleDto.Article.TagList {
+		selectTagIdQuery := `SELECT t.TagId FROM Tag t WHERE t.Tag = $1`
+		var tagId int
+
+		err = repo.DB.QueryRowContext(ctx, selectTagIdQuery, tag).Scan(&tagId)
+		if err == sql.ErrNoRows {
+
+			insertTagQuery := `INSERT INTO Tag (Tag) VALUES ($1) RETURNING TagId`
+			err = repo.DB.QueryRowContext(ctx, insertTagQuery, tag).Scan(&tagId)
+			if err != nil {
+				return nil, fmt.Errorf("an error occurred when attempting to save a tag: %w", err)
+			}
+		}
+
+		insertArticleTagQuery := `INSERT OR IGNORE INTO ArticleTag (ArticleId, TagId) VALUES ($1, $2)`
+		_, err = repo.DB.ExecContext(ctx, insertArticleTagQuery, articleId, tagId)
+		if err != nil {
+			return nil, fmt.Errorf("an error occurred when attempting to tag an article: %w", err)
+		}
+	}
+
 	article, err := repo.GetArticleBySlug(articleDto.GetSlug())
 	if err != nil {
 		return nil, fmt.Errorf("an error occurred when looking up article by slug after saving: %w", err)
@@ -119,9 +140,6 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 }
 
 func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
-
-	// need to save and load tags
-
 	query := `SELECT 
 				a.Title,
 				a.Slug,
