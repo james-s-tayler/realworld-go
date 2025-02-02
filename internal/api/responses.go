@@ -20,6 +20,12 @@ func (app *Application) serveResponseErrorUnauthorized(w http.ResponseWriter, r 
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
+func (app *Application) serveResponseErrorForbidden(w http.ResponseWriter, r *http.Request) {
+	msg := fmt.Sprintf("Forbidden request to %v %v from ip address: %v\n", r.Method, r.RequestURI, r.RemoteAddr)
+	app.logger.Warn(msg)
+	w.WriteHeader(http.StatusForbidden)
+}
+
 func (app *Application) serveResponseErrorUnprocessableEntity(w http.ResponseWriter, v *validator.Validator) {
 	err := app.writeJSON(w, http.StatusUnprocessableEntity, envelope{"errors": v.Errors}, nil)
 	if err != nil {

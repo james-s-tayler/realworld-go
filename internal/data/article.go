@@ -24,6 +24,8 @@ type ArticleFilters struct {
 }
 
 type BodylessArticle struct {
+	ArticleId      int       `json:"-"`
+	UserId         int       `json:"-"`
 	Slug           string    `json:"slug"`
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
@@ -157,7 +159,9 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 }
 
 func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
-	query := `SELECT 
+	query := `SELECT
+				a.ArticleId,
+				a.UserId, 
 				a.Title,
 				a.Slug,
 				a.Description,
@@ -187,6 +191,8 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 	var updatedAt string
 
 	err := repo.DB.QueryRowContext(ctx, query, slug).Scan(
+		&article.ArticleId,
+		&article.UserId,
 		&article.Title,
 		&article.Slug,
 		&article.Description,
@@ -228,4 +234,18 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 	}
 
 	return &article, nil
+}
+
+func (repo *ArticleRepository) DeleteArticle(articleId, userId int) error {
+	query := `DELETE FROM Article WHERE ArticleId = $1 AND UserId = $2`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	_, err := repo.DB.ExecContext(ctx, query, articleId, userId)
+	if err != nil {
+		return fmt.Errorf("an error occured while trying to delete an article: %w", err)
+	}
+
+	return nil
 }

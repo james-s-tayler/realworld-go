@@ -73,7 +73,33 @@ func (app *Application) updateArticleHandler(w http.ResponseWriter, r *http.Requ
 
 // DELETE /api/articles/:slug
 func (app *Application) deleteArticleHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+
+	slug := r.PathValue("slug")
+
+	article, err := app.domains.articles.GetArticleBySlug(slug)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrArticleNotFound):
+			app.serveResponseErrorNotFound(w, r)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
+		return
+	}
+
+	currentUserId := app.getUserContext(r).userId
+	if article.UserId != currentUserId {
+		app.serveResponseErrorForbidden(w, r)
+		return
+	}
+
+	err = app.domains.articles.DeleteArticle(article.ArticleId, currentUserId)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // POST /api/articles/:slug/comments
