@@ -159,7 +159,7 @@
 					"response": []
 				},
 				{
-					"name": "Register - validation failure - duplicate username",
+					"name": "Register - validation - duplicate username",
 					"event": [
 						{
 							"listen": "test",
@@ -227,7 +227,7 @@
 					"response": []
 				},
 				{
-					"name": "Register - validation failure - duplicate email",
+					"name": "Register - validation - duplicate email",
 					"event": [
 						{
 							"listen": "test",
@@ -295,7 +295,7 @@
 					"response": []
 				},
 				{
-					"name": "Register - validation failure - not a valid email",
+					"name": "Register - validation - not a valid email",
 					"event": [
 						{
 							"listen": "test",
@@ -363,7 +363,7 @@
 					"response": []
 				},
 				{
-					"name": "Register - validation failure - missing required fields",
+					"name": "Register - validation - missing required fields",
 					"event": [
 						{
 							"listen": "test",
@@ -437,7 +437,7 @@
 					"response": []
 				},
 				{
-					"name": "Register - validation failure - required fields blank",
+					"name": "Register - validation - required fields blank",
 					"event": [
 						{
 							"listen": "test",
@@ -579,7 +579,7 @@
 					"response": []
 				},
 				{
-					"name": "Login Failed - user not found",
+					"name": "Login Failed - error - user not found",
 					"event": [
 						{
 							"listen": "test",
@@ -624,7 +624,7 @@
 					"response": []
 				},
 				{
-					"name": "Login Failed - incorrect password",
+					"name": "Login Failed - error - incorrect password",
 					"event": [
 						{
 							"listen": "test",
@@ -828,7 +828,7 @@
 					"response": []
 				},
 				{
-					"name": "Current User - unauthenticated, missing authorization header",
+					"name": "Current User - error - unauthenticated, missing authorization header",
 					"event": [
 						{
 							"listen": "test",
@@ -873,7 +873,7 @@
 					"response": []
 				},
 				{
-					"name": "Current User - unauthenticated, invalid token",
+					"name": "Current User - error - unauthenticated, invalid token",
 					"event": [
 						{
 							"listen": "test",
@@ -1002,7 +1002,7 @@
 					"response": []
 				},
 				{
-					"name": "Update User - validation failure - provided fields blank",
+					"name": "Update User - validation - provided fields blank",
 					"event": [
 						{
 							"listen": "test",
@@ -1087,7 +1087,7 @@
 					"response": []
 				},
 				{
-					"name": "Update User - validation failure - duplicate email",
+					"name": "Update User - validation - duplicate email",
 					"event": [
 						{
 							"listen": "test",
@@ -1163,7 +1163,7 @@
 					"response": []
 				},
 				{
-					"name": "Update User - validation failure - duplicate username",
+					"name": "Update User - validation - duplicate username",
 					"event": [
 						{
 							"listen": "test",
@@ -1239,7 +1239,7 @@
 					"response": []
 				},
 				{
-					"name": "Update User - unauthenticated",
+					"name": "Update User - error - unauthenticated",
 					"event": [
 						{
 							"listen": "test",
@@ -1500,7 +1500,7 @@
 			"name": "Articles",
 			"item": [
 				{
-					"name": "Register Articles User",
+					"name": "Register Articles User - setup",
 					"event": [
 						{
 							"listen": "test",
@@ -1571,7 +1571,78 @@
 					"response": []
 				},
 				{
-					"name": "Login and Remember Token",
+					"name": "Register Articles User 2 - setup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (!(pm.environment.isIntegrationTest)) {",
+									"    var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"    pm.test('Response contains \"user\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('user');",
+									"    });",
+									"",
+									"    var user = responseJSON.user || {};",
+									"",
+									"    pm.test('\"email\" property matches ARTICLES_USER_EMAIL_2 variable', function() {",
+									"        const email = pm.globals.get('ARTICLES_USER_EMAIL_2');",
+									"        pm.expect(user.email).to.eql(email);",
+									"    });",
+									"    pm.test('\"usermame\" property matches ARTICLES_USER_USERNAME_2 variable', function() {",
+									"        const username = pm.globals.get('ARTICLES_USER_USERNAME_2');",
+									"        pm.expect(user.username).to.eql(username);",
+									"    });",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set(\"ARTICLES_USER_EMAIL_2\", (Math.random() * 1000) + \"@example.com\")",
+									"pm.globals.set(\"ARTICLES_USER_USERNAME_2\", (Math.random() * 1000) + \"\")"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{ARTICLES_USER_EMAIL_2}}\", \"password\":\"{{PASSWORD}}\", \"username\":\"{{ARTICLES_USER_USERNAME_2}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login and Remember Token - setup",
 					"event": [
 						{
 							"listen": "test",
@@ -1628,6 +1699,78 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\"user\":{\"email\":\"{{ARTICLES_USER_EMAIL}}\", \"password\":\"{{PASSWORD}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users/login",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login and Remember Token 2 - setup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"user\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('user')",
+									"});",
+									"",
+									"var user = responseJSON.user || {};",
+									"",
+									"pm.test('User has \"token\" property', function() {",
+									"    pm.expect(user).to.have.property('token')",
+									"});",
+									"",
+									"if(pm.test('User has \"token\" property')){",
+									"    pm.globals.set('articles_user_token_2', user.token);",
+									"}",
+									"",
+									"pm.test('Global variable \"articles_user_token_2\" has been set', function() {",
+									"    pm.globals.get('articles_user_token_2') === user.token",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{ARTICLES_USER_EMAIL_2}}\", \"password\":\"{{PASSWORD}}\"}}"
 						},
 						"url": {
 							"raw": "{{APIURL}}/users/login",
@@ -1857,7 +2000,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{articles_user_token}}"
+								"value": "Token {{articles_user_token_2}}"
 							}
 						],
 						"body": {
@@ -2237,7 +2380,7 @@
 					"response": []
 				},
 				{
-					"name": "Create Article - unauthenticated",
+					"name": "Create Article - error - unauthenticated",
 					"event": [
 						{
 							"listen": "test",
@@ -2280,6 +2423,267 @@
 							],
 							"path": [
 								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Article - error - not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 404', function() {",
+									"    pm.expect(pm.response.status).to.eql('Not Found')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/no-such-article",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"no-such-article"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Article - error - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Article - error - unauthorized (wrong user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 403', function() {",
+									"    pm.expect(pm.response.status).to.eql('Forbidden')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Article",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 204', function() {",
+									"    pm.expect(pm.response.status).to.eql('No Content')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}"
 							]
 						}
 					},
@@ -3489,7 +3893,7 @@
 					"response": []
 				},
 				{
-					"name": "Follow Profile - unauthenticated",
+					"name": "Follow Profile - error - unauthenticated",
 					"event": [
 						{
 							"listen": "test",
@@ -3856,7 +4260,7 @@
 					"response": []
 				},
 				{
-					"name": "Profile - 404 not found",
+					"name": "Profile - error - 404 not found",
 					"event": [
 						{
 							"listen": "test",
@@ -3901,7 +4305,7 @@
 					"response": []
 				},
 				{
-					"name": "Profile - validation failure - invalid username",
+					"name": "Profile - validation - invalid username",
 					"event": [
 						{
 							"listen": "test",
@@ -4011,7 +4415,7 @@
 					"response": []
 				},
 				{
-					"name": "Unfollow Profile - unauthenticated",
+					"name": "Unfollow Profile - error - unauthenticated",
 					"event": [
 						{
 							"listen": "test",
@@ -4131,7 +4535,7 @@
 					"response": []
 				},
 				{
-					"name": "Unfollow Profile - not already following",
+					"name": "Unfollow Profile - error - not already following",
 					"event": [
 						{
 							"listen": "test",
