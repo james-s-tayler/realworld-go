@@ -1801,6 +1801,82 @@
 					"response": []
 				},
 				{
+					"name": "Create Article without tags",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"article\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('article');",
+									"});",
+									"",
+									"var article = responseJSON.article || {};",
+									"",
+									"pm.test('Article contains \"tagList\" property', function() {",
+									"    pm.expect(article).to.have.property('tagList');",
+									"});",
+									"pm.test('Article\\'s \"tagList\" property is an Array', function() {",
+									"    Array.isArray(article.tagList);",
+									"    pm.expect(article.tagList).to.have.members([]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}2\", \n        \"description\":\"{{ARTICLE_DESCRIPTION}}\", \n        \"body\":\"{{ARTICLE_BODY}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create Article - validation - missing required fields",
 					"event": [
 						{

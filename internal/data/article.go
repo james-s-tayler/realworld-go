@@ -131,6 +131,10 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 				a.UpdatedAt,
 				(SELECT EXISTS(SELECT 1 FROM ArticleFavorite WHERE ArticleId=a.ArticleId AND UserId=$1)) AS Favorited,
 				(SELECT COUNT(*) FROM ArticleFavorite WHERE ArticleId=a.ArticleId) AS FavoritesCount,
+				COALESCE((SELECT GROUP_CONCAT(t.Tag, ',') 
+				        FROM Tag t 
+                        JOIN ArticleTag at ON at.TagId = t.TagId 
+                        WHERE at.ArticleId = a.ArticleId), '') AS Tags,
 				u.Username,
 				u.Bio,
 				u.Image
@@ -143,9 +147,10 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 
 	var article Article
 	var author Profile
-
+	var rawTags string
 	var createdAt string
 	var updatedAt string
+
 	err := repo.DB.QueryRowContext(ctx, query, slug).Scan(
 		&article.Title,
 		&article.Slug,
@@ -155,6 +160,7 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 		&updatedAt,
 		&article.Favorited,
 		&article.FavoritesCount,
+		&rawTags,
 		&author.Username,
 		&author.Bio,
 		&author.Image,
@@ -164,21 +170,27 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, ErrArticleNotFound
 		default:
-			return nil, err
+			return nil, fmt.Errorf("error looking up article by slug: %w", err)
 		}
 	}
 
 	article.CreatedAt, err = time.Parse(time.RFC3339Nano, createdAt)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error parsing created at date: %w", err)
 	}
 
 	article.UpdatedAt, err = time.Parse(time.RFC3339Nano, updatedAt)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error parsing updated at date: %w", err)
 	}
 
 	article.Author = &author
+
+	if rawTags == "" {
+		article.TagList = make([]string, 0)
+	} else {
+		article.TagList = strings.Split(rawTags, ",")
+	}
 
 	return &article, nil
 }
