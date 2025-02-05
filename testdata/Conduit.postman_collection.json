@@ -1825,6 +1825,7 @@
 									"    const requestDateTime = new Date(pm.globals.get('REQUEST_DATE_TIME'))",
 									"    const createdAt = new Date(article.createdAt)",
 									"    pm.expect(createdAt).to.be.above(requestDateTime)",
+									"    pm.globals.set('ARTICLE_CREATED_AT', article.createdAt);",
 									"})",
 									"",
 									"pm.test('Article contains \"updatedAt\" property', function() {",
@@ -1837,6 +1838,7 @@
 									"    const requestDateTime = new Date(pm.globals.get('REQUEST_DATE_TIME'))",
 									"    const updatedAt = new Date(article.updatedAt)",
 									"    pm.expect(updatedAt).to.be.above(requestDateTime)",
+									"    pm.globals.set('ARTICLE_UPDATED_AT', article.updatedAt);",
 									"})",
 									"",
 									"pm.test('Article contains \"description\" property', function() {",
@@ -2423,6 +2425,382 @@
 							],
 							"path": [
 								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Article",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"article\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('article');",
+									"});",
+									"",
+									"var article = responseJSON.article || {};",
+									"",
+									"pm.test('Article contains \"title\" property', function() {",
+									"    pm.expect(article).to.have.property('title');",
+									"    pm.expect(article.title).to.eql(pm.globals.get('ARTICLE_TITLE'))",
+									"});",
+									"",
+									"pm.test('Article contains \"slug\" property', function() {",
+									"    pm.expect(article).to.have.property('slug');",
+									"    pm.expect(article.slug).to.eql(pm.globals.get('ARTICLE_SLUG'))",
+									"});",
+									"",
+									"pm.test('Article contains \"body\" property', function() {",
+									"    pm.expect(article).to.have.property('body');",
+									"    pm.expect(article.body).to.eql(pm.globals.get('ARTICLE_BODY'))",
+									"});",
+									"",
+									"pm.test('Article contains \"createdAt\" property', function() {",
+									"    pm.expect(article).to.have.property('createdAt');",
+									"});",
+									"pm.test('Article\\'s \"createdAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
+									"});",
+									"pm.test('Article \"createdAt\" equals ARTICLE_CREATED_AT', function() {",
+									"    const articleCreatedAt = pm.globals.get('ARTICLE_CREATED_AT')",
+									"    pm.expect(article.createdAt).to.eql(articleCreatedAt)",
+									"})",
+									"",
+									"pm.test('Article contains \"updatedAt\" property', function() {",
+									"    pm.expect(article).to.have.property('updatedAt');",
+									"});",
+									"pm.test('Article\\'s \"updatedAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
+									"});",
+									"pm.test('Article \"updatedAt\" equals ARTICLE_UPDATED_AT', function() {",
+									"    const articleUpdatedAt = pm.globals.get('ARTICLE_UPDATED_AT')",
+									"    pm.expect(article.updatedAt).to.eql(articleUpdatedAt)",
+									"})",
+									"",
+									"pm.test('Article contains \"description\" property', function() {",
+									"    pm.expect(article).to.have.property('description');",
+									"    pm.expect(article.description).to.eql(pm.globals.get('ARTICLE_DESCRIPTION'))",
+									"});",
+									"",
+									"pm.test('Article contains \"tagList\" property', function() {",
+									"    pm.expect(article).to.have.property('tagList');",
+									"});",
+									"pm.test('Article\\'s \"tagList\" property is an Array', function() {",
+									"    Array.isArray(article.tagList);",
+									"    pm.expect(article.tagList).to.have.members([",
+									"        pm.globals.get('TAG_1'),",
+									"        pm.globals.get('TAG_2')",
+									"    ]);",
+									"});",
+									"",
+									"pm.test('Article contains \"author\" property', function() {",
+									"    pm.expect(article).to.have.property('author');",
+									"});",
+									"pm.test('Author \"username\" equals ARTICLES_USER_USERNAME', function() {",
+									"    pm.expect(article.author).to.have.property('username');",
+									"    pm.expect(article.author.username).to.eql(pm.globals.get('ARTICLES_USER_USERNAME'))",
+									"})",
+									"pm.test('Author \"bio\" equals default', function() {",
+									"    pm.expect(article.author).to.have.property('bio');",
+									"    pm.expect(article.author.bio).to.eql('I work at statefarm')",
+									"})",
+									"pm.test('Author \"image\" equals null', function() {",
+									"    pm.expect(article.author).to.have.property('image');",
+									"    pm.expect(article.author.image).to.be.null;",
+									"})",
+									"pm.test('Author \"following\" equals false', function() {",
+									"    pm.expect(article.author).to.have.property('following');",
+									"    pm.expect(article.author.following).to.be.false;",
+									"})",
+									"",
+									"pm.test('Article contains \"favorited\" property', function() {",
+									"    pm.expect(article).to.have.property('favorited');",
+									"    pm.expect(article.favorited).to.eql(false)",
+									"});",
+									"",
+									"pm.test('Article contains \"favoritesCount\" property', function() {",
+									"    pm.expect(article).to.have.property('favoritesCount');",
+									"    pm.expect(article.favoritesCount).to.eql(0)",
+									"});",
+									"",
+									"pm.test('favoritesCount is an integer', function() {",
+									"    Number.isInteger(article.favoritesCount);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Article - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"article\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('article');",
+									"});",
+									"",
+									"var article = responseJSON.article || {};",
+									"",
+									"pm.test('Article contains \"title\" property', function() {",
+									"    pm.expect(article).to.have.property('title');",
+									"    pm.expect(article.title).to.eql(pm.globals.get('ARTICLE_TITLE'))",
+									"});",
+									"",
+									"pm.test('Article contains \"slug\" property', function() {",
+									"    pm.expect(article).to.have.property('slug');",
+									"    pm.expect(article.slug).to.eql(pm.globals.get('ARTICLE_SLUG'))",
+									"});",
+									"",
+									"pm.test('Article contains \"body\" property', function() {",
+									"    pm.expect(article).to.have.property('body');",
+									"    pm.expect(article.body).to.eql(pm.globals.get('ARTICLE_BODY'))",
+									"});",
+									"",
+									"pm.test('Article contains \"createdAt\" property', function() {",
+									"    pm.expect(article).to.have.property('createdAt');",
+									"});",
+									"pm.test('Article\\'s \"createdAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
+									"});",
+									"pm.test('Article \"createdAt\" equals ARTICLE_CREATED_AT', function() {",
+									"    const articleCreatedAt = pm.globals.get('ARTICLE_CREATED_AT')",
+									"    pm.expect(article.createdAt).to.eql(articleCreatedAt)",
+									"})",
+									"",
+									"pm.test('Article contains \"updatedAt\" property', function() {",
+									"    pm.expect(article).to.have.property('updatedAt');",
+									"});",
+									"pm.test('Article\\'s \"updatedAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
+									"});",
+									"pm.test('Article \"updatedAt\" equals ARTICLE_UPDATED_AT', function() {",
+									"    const articleUpdatedAt = pm.globals.get('ARTICLE_UPDATED_AT')",
+									"    pm.expect(article.updatedAt).to.eql(articleUpdatedAt)",
+									"})",
+									"",
+									"pm.test('Article contains \"description\" property', function() {",
+									"    pm.expect(article).to.have.property('description');",
+									"    pm.expect(article.description).to.eql(pm.globals.get('ARTICLE_DESCRIPTION'))",
+									"});",
+									"",
+									"pm.test('Article contains \"tagList\" property', function() {",
+									"    pm.expect(article).to.have.property('tagList');",
+									"});",
+									"pm.test('Article\\'s \"tagList\" property is an Array', function() {",
+									"    Array.isArray(article.tagList);",
+									"    pm.expect(article.tagList).to.have.members([",
+									"        pm.globals.get('TAG_1'),",
+									"        pm.globals.get('TAG_2')",
+									"    ]);",
+									"});",
+									"",
+									"pm.test('Article contains \"author\" property', function() {",
+									"    pm.expect(article).to.have.property('author');",
+									"});",
+									"pm.test('Author \"username\" equals ARTICLES_USER_USERNAME', function() {",
+									"    pm.expect(article.author).to.have.property('username');",
+									"    pm.expect(article.author.username).to.eql(pm.globals.get('ARTICLES_USER_USERNAME'))",
+									"})",
+									"pm.test('Author \"bio\" equals default', function() {",
+									"    pm.expect(article.author).to.have.property('bio');",
+									"    pm.expect(article.author.bio).to.eql('I work at statefarm')",
+									"})",
+									"pm.test('Author \"image\" equals null', function() {",
+									"    pm.expect(article.author).to.have.property('image');",
+									"    pm.expect(article.author.image).to.be.null;",
+									"})",
+									"pm.test('Author \"following\" equals false', function() {",
+									"    pm.expect(article.author).to.have.property('following');",
+									"    pm.expect(article.author.following).to.be.false;",
+									"})",
+									"",
+									"pm.test('Article contains \"favorited\" property', function() {",
+									"    pm.expect(article).to.have.property('favorited');",
+									"    pm.expect(article.favorited).to.eql(false)",
+									"});",
+									"",
+									"pm.test('Article contains \"favoritesCount\" property', function() {",
+									"    pm.expect(article).to.have.property('favoritesCount');",
+									"    pm.expect(article.favoritesCount).to.eql(0)",
+									"});",
+									"",
+									"pm.test('favoritesCount is an integer', function() {",
+									"    Number.isInteger(article.favoritesCount);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Article - error - not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 404', function() {",
+									"    pm.expect(pm.response.status).to.eql('Not Found')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/no-such-article",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"no-such-article"
 							]
 						}
 					},

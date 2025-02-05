@@ -23,7 +23,23 @@ func (app *Application) getArticlesHandler(w http.ResponseWriter, r *http.Reques
 
 // GET /api/articles/:slug
 func (app *Application) getArticleHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+	slug := r.PathValue("slug")
+
+	article, err := app.domains.articles.GetArticleBySlug(slug)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrArticleNotFound):
+			app.serveResponseErrorNotFound(w, r)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"article": article}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+	}
 }
 
 // GET /api/articles/feed
