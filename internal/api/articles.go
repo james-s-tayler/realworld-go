@@ -25,7 +25,7 @@ func (app *Application) getArticlesHandler(w http.ResponseWriter, r *http.Reques
 func (app *Application) getArticleHandler(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
 
-	article, err := app.domains.articles.GetArticleBySlug(slug)
+	article, err := app.domains.articles.GetArticleBySlug(slug, app.getUserContext(r).userId)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrArticleNotFound):
@@ -92,7 +92,7 @@ func (app *Application) deleteArticleHandler(w http.ResponseWriter, r *http.Requ
 
 	slug := r.PathValue("slug")
 
-	article, err := app.domains.articles.GetArticleBySlug(slug)
+	article, err := app.domains.articles.GetArticleBySlug(slug, app.getUserContext(r).userId)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrArticleNotFound):
@@ -135,7 +135,37 @@ func (app *Application) getArticleCommentsHandler(w http.ResponseWriter, r *http
 
 // POST /api/articles/:slug/favorite
 func (app *Application) favoriteArticleHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+	slug := r.PathValue("slug")
+
+	article, err := app.domains.articles.GetArticleBySlug(slug, app.getUserContext(r).userId)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrArticleNotFound):
+			app.serveResponseErrorNotFound(w, r)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
+		return
+	}
+
+	if !article.Favorited {
+		err = app.domains.articles.FavoriteArticle(article.ArticleId, app.getUserContext(r).userId)
+		if err != nil {
+			app.serveResponseErrorInternalServerError(w, err)
+			return
+		}
+
+		article, err = app.domains.articles.GetArticleBySlug(slug, app.getUserContext(r).userId)
+		if err != nil {
+			app.serveResponseErrorInternalServerError(w, err)
+			return
+		}
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"article": article}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+	}
 }
 
 // DELETE /api/articles/:slug/favorite

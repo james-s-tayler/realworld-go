@@ -150,7 +150,7 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 		return nil, fmt.Errorf("an error occurred when attempting to commit the transaction while saving an article: %w", err)
 	}
 
-	article, err := repo.GetArticleBySlug(articleDto.GetSlug())
+	article, err := repo.GetArticleBySlug(articleDto.GetSlug(), userId)
 	if err != nil {
 		return nil, fmt.Errorf("an error occurred when looking up article by slug after saving: %w", err)
 	}
@@ -158,7 +158,7 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 	return article, nil
 }
 
-func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
+func (repo *ArticleRepository) GetArticleBySlug(slug string, userId int) (*Article, error) {
 	query := `SELECT
 				a.ArticleId,
 				a.UserId, 
@@ -168,8 +168,8 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 				a.Body,
 				a.CreatedAt,
 				a.UpdatedAt,
-				(SELECT EXISTS(SELECT 1 FROM ArticleFavorite WHERE ArticleId=a.ArticleId AND UserId=$1)) AS Favorited,
-				(SELECT COUNT(*) FROM ArticleFavorite WHERE ArticleId=a.ArticleId) AS FavoritesCount,
+				(SELECT EXISTS(SELECT 1 FROM ArticleFavorite af WHERE af.ArticleId=a.ArticleId AND af.UserId=$1)) AS Favorited,
+				(SELECT COUNT(*) FROM ArticleFavorite af WHERE af.ArticleId=a.ArticleId) AS FavoritesCount,
 				COALESCE((SELECT GROUP_CONCAT(t.Tag, ',') 
 				        FROM Tag t 
                         JOIN ArticleTag at ON at.TagId = t.TagId 
@@ -179,7 +179,7 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 				u.Image
 			  FROM Article a
 			  JOIN User u ON a.UserId = u.UserId 
-			  WHERE a.Slug = $1`
+			  WHERE a.Slug = $2`
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
@@ -190,7 +190,7 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string) (*Article, error) {
 	var createdAt string
 	var updatedAt string
 
-	err := repo.DB.QueryRowContext(ctx, query, slug).Scan(
+	err := repo.DB.QueryRowContext(ctx, query, userId, slug).Scan(
 		&article.ArticleId,
 		&article.UserId,
 		&article.Title,
@@ -245,6 +245,25 @@ func (repo *ArticleRepository) DeleteArticle(articleId, userId int) error {
 	_, err := repo.DB.ExecContext(ctx, query, articleId, userId)
 	if err != nil {
 		return fmt.Errorf("an error occured while trying to delete an article: %w", err)
+	}
+
+	return nil
+}
+
+func (repo *ArticleRepository) FavoriteArticle(articleId, userId int) error {
+	query := `INSERT OR IGNORE INTO ArticleFavorite (ArticleId, UserId) VALUES ($1, $2)`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	_, err := repo.DB.ExecContext(ctx, query, articleId, userId)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil
+		default:
+			return err
+		}
 	}
 
 	return nil
