@@ -268,3 +268,22 @@ func (repo *ArticleRepository) FavoriteArticle(articleId, userId int) error {
 
 	return nil
 }
+
+func (repo *ArticleRepository) UnfavoriteArticle(articleId, userId int) error {
+	query := `DELETE FROM ArticleFavorite WHERE ArticleId = $1 AND UserId = $2`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	_, err := repo.DB.ExecContext(ctx, query, articleId, userId)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil
+		default:
+			return err
+		}
+	}
+
+	return nil
+}
