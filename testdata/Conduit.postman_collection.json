@@ -3652,6 +3652,396 @@
 					"response": []
 				},
 				{
+					"name": "Create Comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"comment\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('comment');",
+									"});",
+									"",
+									"var comment = responseJSON.comment || {};",
+									"",
+									"",
+									"pm.test('Comment contains \"id\" property', function() {",
+									"    pm.expect(comment).to.have.property('id');",
+									"    pm.expect(comment.id).to.eql(1)",
+									"});",
+									"",
+									"pm.test('Comment contains \"body\" property', function() {",
+									"    pm.expect(comment).to.have.property('body');",
+									"    pm.expect(comment.body).to.eql(pm.globals.get('COMMENT_BODY'))",
+									"});",
+									"",
+									"pm.test('Comment contains \"createdAt\" property', function() {",
+									"    pm.expect(comment).to.have.property('createdAt');",
+									"});",
+									"pm.test('Comments\\'s \"createdAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.createdAt);",
+									"});",
+									"pm.test('Comment \"createdAt\" is after COMMENT_REQUEST_DATE_TIME', function() {",
+									"    const requestDateTime = new Date(pm.globals.get('COMMENT_REQUEST_DATE_TIME'))",
+									"    const createdAt = new Date(comment.createdAt)",
+									"    pm.expect(createdAt).to.be.above(requestDateTime)",
+									"    pm.globals.set('COMMENT_CREATED_AT', comment.createdAt);",
+									"})",
+									"",
+									"pm.test('Comment contains \"updatedAt\" property', function() {",
+									"    pm.expect(comment).to.have.property('updatedAt');",
+									"});",
+									"pm.test('Comment\\'s \"updatedAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.updatedAt);",
+									"});",
+									"pm.test('Comment \"updatedAt\" is after REQUEST_DATE_TIME', function() {",
+									"    const requestDateTime = new Date(pm.globals.get('COMMENT_REQUEST_DATE_TIME'))",
+									"    const updatedAt = new Date(comment.updatedAt)",
+									"    pm.expect(updatedAt).to.be.above(requestDateTime)",
+									"    pm.globals.set('COMMENT_UPDATED_AT', comment.updatedAt);",
+									"})",
+									"",
+									"pm.test('Comment contains \"author\" property', function() {",
+									"    pm.expect(comment).to.have.property('author');",
+									"});",
+									"pm.test('Author \"username\" equals ARTICLES_USER_USERNAME_2', function() {",
+									"    pm.expect(comment.author).to.have.property('username');",
+									"    pm.expect(comment.author.username).to.eql(pm.globals.get('ARTICLES_USER_USERNAME_2'))",
+									"})",
+									"pm.test('Author \"bio\" equals default', function() {",
+									"    pm.expect(comment.author).to.have.property('bio');",
+									"    pm.expect(comment.author.bio).to.eql('I work at statefarm')",
+									"})",
+									"pm.test('Author \"image\" equals null', function() {",
+									"    pm.expect(comment.author).to.have.property('image');",
+									"    pm.expect(comment.author.image).to.be.null;",
+									"})",
+									"pm.test('Author \"following\" equals false', function() {",
+									"    pm.expect(comment.author).to.have.property('following');",
+									"    pm.expect(comment.author.following).to.be.false;",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment - error - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment - error - article not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 404', function() {",
+									"    pm.expect(pm.response.status).to.eql('Not Found')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/no-such-article/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"no-such-article",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment - error - missing required fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 422', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"body\" must not be empty', function() {",
+									"    pm.expect(errors).to.have.property('body')",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment - error - required fields blank",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 422', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"body\" must not be empty', function() {",
+									"    pm.expect(errors).to.have.property('body')",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Delete Article - error - not found",
 					"event": [
 						{
