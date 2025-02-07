@@ -118,21 +118,6 @@ func (app *Application) deleteArticleHandler(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// POST /api/articles/:slug/comments
-func (app *Application) addArticleCommentHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
-}
-
-// DELETE /api/articles/:slug/comments/:id
-func (app *Application) deleteArticleCommentHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
-}
-
-// GET /api/articles/:slug/comments
-func (app *Application) getArticleCommentsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
-}
-
 // POST /api/articles/:slug/favorite
 func (app *Application) favoriteArticleHandler(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")

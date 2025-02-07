@@ -3813,7 +3813,8 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{articles_user_token_2}}"
+								"value": "Token {{articles_user_token_2}}",
+								"disabled": true
 							}
 						],
 						"body": {
