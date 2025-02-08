@@ -3902,6 +3902,157 @@
 					"response": []
 				},
 				{
+					"name": "Create Comment 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 201', function() {",
+									"    pm.expect(pm.response.status).to.eql('Created')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"comment\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('comment');",
+									"});",
+									"",
+									"var comment = responseJSON.comment || {};",
+									"",
+									"",
+									"pm.test('Comment contains \"id\" property', function() {",
+									"    pm.expect(comment).to.have.property('id');",
+									"    pm.expect(comment.id).to.eql(2)",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}2\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 201', function() {",
+									"    pm.expect(pm.response.status).to.eql('Created')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"comment\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('comment');",
+									"});",
+									"",
+									"var comment = responseJSON.comment || {};",
+									"",
+									"",
+									"pm.test('Comment contains \"id\" property', function() {",
+									"    pm.expect(comment).to.have.property('id');",
+									"    pm.expect(comment.id).to.eql(3);",
+									"    pm.globals.set('DELETE_COMMENT_ID', comment.id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create Comment - error - unauthenticated",
 					"event": [
 						{
@@ -4165,6 +4316,391 @@
 								"articles",
 								"{{ARTICLE_SLUG}}",
 								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment - error - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments/{{DELETE_COMMENT_ID}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments",
+								"{{DELETE_COMMENT_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment - error - unauthorized (wrong user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 403', function() {",
+									"    pm.expect(pm.response.status).to.eql('Forbidden')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments/{{DELETE_COMMENT_ID}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments",
+								"{{DELETE_COMMENT_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment - error - article not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 404', function() {",
+									"    pm.expect(pm.response.status).to.eql('Not Found')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/no-such-article/comments/{{DELETE_COMMENT_ID}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"no-such-article",
+								"comments",
+								"{{DELETE_COMMENT_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment - error - comment not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 404', function() {",
+									"    pm.expect(pm.response.status).to.eql('Not Found')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments/0",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments",
+								"0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment - error - invalid comment id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 422', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"id\" is invalid', function() {",
+									"    pm.expect(errors).to.have.property('id')",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments/abc",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments",
+								"abc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 204', function() {",
+									"    pm.expect(pm.response.status).to.eql('No Content')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('COMMENT_BODY', 'Is that so?')",
+									"pm.globals.set('COMMENT_REQUEST_DATE_TIME', new Date().toISOString())"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments/{{DELETE_COMMENT_ID}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments",
+								"{{DELETE_COMMENT_ID}}"
 							]
 						}
 					},

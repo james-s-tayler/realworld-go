@@ -21,6 +21,8 @@ type CreateCommentDTO struct {
 }
 
 type Comment struct {
+	ArticleId int       `json:"-"`
+	UserId    int       `json:"-"`
 	CommentId int       `json:"id"`
 	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"createdAt"`
@@ -71,6 +73,8 @@ func (repo *CommentRepository) CreateComment(articleId, currentUserId int, body 
 
 func (repo *CommentRepository) GetCommentById(commentId, currentUserId int) (*Comment, error) {
 	query := `SELECT 
+	c.ArticleId,
+	c.UserId,
 	c.CommentId,
 	c.Body,
 	c.CreatedAt,
@@ -92,6 +96,8 @@ func (repo *CommentRepository) GetCommentById(commentId, currentUserId int) (*Co
 	var updatedAt string
 
 	err := repo.DB.QueryRowContext(ctx, query, currentUserId, commentId).Scan(
+		&comment.ArticleId,
+		&comment.UserId,
 		&comment.CommentId,
 		&comment.Body,
 		&createdAt,
@@ -123,4 +129,19 @@ func (repo *CommentRepository) GetCommentById(commentId, currentUserId int) (*Co
 	comment.Author = &author
 
 	return &comment, nil
+}
+
+func (repo *CommentRepository) DeleteComment(commentId int) error {
+	query := `DELETE FROM Comment WHERE CommentId = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	_, err := repo.DB.ExecContext(ctx, query, commentId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
