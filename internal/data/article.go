@@ -174,6 +174,7 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string, userId int) (*Artic
 				        FROM Tag t 
                         JOIN ArticleTag at ON at.TagId = t.TagId 
                         WHERE at.ArticleId = a.ArticleId), '') AS Tags,
+				EXISTS (SELECT 1 FROM Follower WHERE UserId = $1 AND FollowUserId = a.UserId) AS Following,
 				u.Username,
 				u.Bio,
 				u.Image
@@ -202,6 +203,7 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string, userId int) (*Artic
 		&article.Favorited,
 		&article.FavoritesCount,
 		&rawTags,
+		&author.Following,
 		&author.Username,
 		&author.Bio,
 		&author.Image,

@@ -1786,6 +1786,56 @@
 					"response": []
 				},
 				{
+					"name": "Follow Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/{{ARTICLES_USER_USERNAME}}/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"{{ARTICLES_USER_USERNAME}}",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create Article",
 					"event": [
 						{
@@ -2585,6 +2635,84 @@
 					"response": []
 				},
 				{
+					"name": "Get Article - following author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"article\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('article');",
+									"});",
+									"",
+									"var article = responseJSON.article || {};",
+									"",
+									"pm.test('Article contains \"author\" property', function() {",
+									"    pm.expect(article).to.have.property('author');",
+									"});",
+									"pm.test('Author \"username\" equals ARTICLES_USER_USERNAME', function() {",
+									"    pm.expect(article.author).to.have.property('username');",
+									"    pm.expect(article.author.username).to.eql(pm.globals.get('ARTICLES_USER_USERNAME'))",
+									"})",
+									"pm.test('Author \"following\" equals true', function() {",
+									"    pm.expect(article.author).to.have.property('following');",
+									"    pm.expect(article.author.following).to.be.true;",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get Article - unauthenticated",
 					"event": [
 						{
@@ -2808,7 +2936,7 @@
 					"response": []
 				},
 				{
-					"name": "Favorite Article Copy",
+					"name": "Favorite Article",
 					"event": [
 						{
 							"listen": "test",
@@ -3174,9 +3302,9 @@
 									"    pm.expect(article.author).to.have.property('image');",
 									"    pm.expect(article.author.image).to.be.null;",
 									"})",
-									"pm.test('Author \"following\" equals false', function() {",
+									"pm.test('Author \"following\" equals true', function() {",
 									"    pm.expect(article.author).to.have.property('following');",
-									"    pm.expect(article.author.following).to.be.false;",
+									"    pm.expect(article.author.following).to.be.true;",
 									"})",
 									"",
 									"pm.test('Article contains \"favorited\" property', function() {",
