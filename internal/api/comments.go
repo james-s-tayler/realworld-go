@@ -109,5 +109,34 @@ func (app *Application) deleteArticleCommentHandler(w http.ResponseWriter, r *ht
 
 // GET /api/articles/:slug/comments
 func (app *Application) getArticleCommentsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+	slug := r.PathValue("slug")
+
+	currentUserId := app.getUserContext(r).userId
+
+	article, err := app.domains.articles.GetArticleBySlug(slug, currentUserId)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrArticleNotFound):
+			app.serveResponseErrorNotFound(w, r)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
+		return
+	}
+
+	comments, err := app.domains.comments.GetCommentsForArticle(article.ArticleId, currentUserId)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrCommentNotFound):
+			app.serveResponseErrorNotFound(w, r)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"comments": comments}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+	}
 }

@@ -3920,11 +3920,13 @@
 									"",
 									"var comment = responseJSON.comment || {};",
 									"",
-									"",
 									"pm.test('Comment contains \"id\" property', function() {",
 									"    pm.expect(comment).to.have.property('id');",
 									"    pm.expect(comment.id).to.eql(2)",
-									"});"
+									"});",
+									"",
+									"pm.globals.set('COMMENT_CREATED_AT_2', comment.createdAt);",
+									"pm.globals.set('COMMENT_UPDATED_AT_2', comment.updatedAt);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -3955,7 +3957,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{articles_user_token_2}}"
+								"value": "Token {{articles_user_token}}"
 							}
 						],
 						"body": {
@@ -4701,6 +4703,358 @@
 								"{{ARTICLE_SLUG}}",
 								"comments",
 								"{{DELETE_COMMENT_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"comments\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('comments');",
+									"});",
+									"",
+									"var comments = responseJSON.comments || [];",
+									"",
+									"pm.test(\"Article has 2 comments\", function() {",
+									"    pm.expect(comments.length).to.eql(2)",
+									"});",
+									"",
+									"pm.test('Comment contains \"id\" property', function() {",
+									"    pm.expect(comments[0]).to.have.property('id');",
+									"    pm.expect(comments[1]).to.have.property('id');",
+									"    pm.expect(comments[0].id).to.eql(1)",
+									"    pm.expect(comments[1].id).to.eql(2)",
+									"});",
+									"",
+									"pm.test('Comment contains \"body\" property', function() {",
+									"    pm.expect(comments[0]).to.have.property('body');",
+									"    pm.expect(comments[1]).to.have.property('body');",
+									"    pm.expect(comments[0].body).to.eql(pm.globals.get('COMMENT_BODY'))",
+									"    pm.expect(comments[1].body).to.eql(pm.globals.get('COMMENT_BODY')+2)",
+									"});",
+									"",
+									"pm.test('Comment contains \"createdAt\" property', function() {",
+									"    pm.expect(comments[0]).to.have.property('createdAt');",
+									"    pm.expect(comments[1]).to.have.property('createdAt');",
+									"});",
+									"pm.test('Comments\\'s \"createdAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comments[0].createdAt);",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comments[1].createdAt);",
+									"});",
+									"pm.test('Comment \"createdAt\" equals COMMENT_CREATED_AT', function() {",
+									"    pm.expect(comments[0].createdAt).to.eql(pm.globals.get('COMMENT_CREATED_AT'));",
+									"    pm.expect(comments[1].createdAt).to.eql(pm.globals.get('COMMENT_CREATED_AT_2'));",
+									"})",
+									"",
+									"pm.test('Comment contains \"updatedAt\" property', function() {",
+									"    pm.expect(comments[0]).to.have.property('updatedAt');",
+									"    pm.expect(comments[1]).to.have.property('updatedAt');",
+									"});",
+									"pm.test('Comment\\'s \"updatedAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comments[0].updatedAt);",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comments[1].updatedAt);",
+									"});",
+									"pm.test('Comment \"updatedAt\" equals COMMENT_UPDATED_AT', function() {",
+									"    pm.expect(comments[0].updatedAt).to.eql(pm.globals.get('COMMENT_UPDATED_AT'))",
+									"    pm.expect(comments[1].updatedAt).to.eql(pm.globals.get('COMMENT_UPDATED_AT_2'))",
+									"})",
+									"",
+									"pm.test('Comment contains \"author\" property', function() {",
+									"    pm.expect(comments[0]).to.have.property('author');",
+									"    pm.expect(comments[1]).to.have.property('author');",
+									"});",
+									"pm.test('Author \"username\" equals ARTICLES_USER_USERNAME_2', function() {",
+									"    pm.expect(comments[0].author).to.have.property('username');",
+									"    pm.expect(comments[1].author).to.have.property('username');",
+									"    pm.expect(comments[0].author.username).to.eql(pm.globals.get('ARTICLES_USER_USERNAME_2'));",
+									"    pm.expect(comments[1].author.username).to.eql(pm.globals.get('ARTICLES_USER_USERNAME'));",
+									"})",
+									"pm.test('Author \"bio\" equals default', function() {",
+									"    pm.expect(comments[0].author).to.have.property('bio');",
+									"    pm.expect(comments[1].author).to.have.property('bio');",
+									"    pm.expect(comments[0].author.bio).to.eql('I work at statefarm');",
+									"    pm.expect(comments[1].author.bio).to.eql('I work at statefarm');",
+									"})",
+									"pm.test('Author \"image\" equals null', function() {",
+									"    pm.expect(comments[0].author).to.have.property('image');",
+									"    pm.expect(comments[1].author).to.have.property('image');",
+									"    pm.expect(comments[0].author.image).to.be.null;",
+									"    pm.expect(comments[1].author.image).to.be.null;",
+									"})",
+									"pm.test('Author \"following\" equals false', function() {",
+									"    pm.expect(comments[0].author).to.have.property('following');",
+									"    pm.expect(comments[1].author).to.have.property('following');",
+									"    pm.expect(comments[0].author.following).to.be.false;",
+									"    pm.expect(comments[1].author.following).to.be.true;",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comments - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"comments\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('comments');",
+									"});",
+									"",
+									"var comments = responseJSON.comments || [];",
+									"",
+									"pm.test(\"Article has 2 comments\", function() {",
+									"    pm.expect(comments.length).to.eql(2)",
+									"});",
+									"",
+									"pm.test(\"Not following any comment authors\", function() {",
+									"    pm.expect(comments[0].author.following).to.be.false",
+									"    pm.expect(comments[1].author.following).to.be.false",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comments - no comments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"comments\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('comments');",
+									"});",
+									"",
+									"var comments = responseJSON.comments || [];",
+									"",
+									"pm.test(\"Article has 0 comments\", function() {",
+									"    pm.expect(comments.length).to.eql(0)",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}2/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}2",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comments - error - not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 404', function() {",
+									"    pm.expect(pm.response.status).to.eql('Not Found')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"comment\": {\n        \"body\":\"{{COMMENT_BODY}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/no-such-article/comments",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"no-such-article",
+								"comments"
 							]
 						}
 					},

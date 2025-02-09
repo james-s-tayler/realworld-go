@@ -145,3 +145,83 @@ func (repo *CommentRepository) DeleteComment(commentId int) error {
 
 	return nil
 }
+
+func (repo *CommentRepository) GetCommentsForArticle(articleId, currentUserId int) ([]Comment, error) {
+	query := `SELECT 
+	c.ArticleId,
+	c.UserId,
+	c.CommentId,
+	c.Body,
+	c.CreatedAt,
+	c.UpdatedAt,
+	EXISTS (SELECT 1 FROM Follower WHERE UserId = $1 AND FollowUserId = c.UserId) AS Following,
+	u.Username,
+	u.Bio,
+	u.Image
+  	FROM Comment c
+  	JOIN User u ON c.UserId = u.UserId 
+	JOIN Article a ON c.ArticleId = a.ArticleId
+  	WHERE a.ArticleId = $2
+	ORDER BY c.CommentId ASC`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	rows, err := repo.DB.QueryContext(ctx, query, currentUserId, articleId)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrCommentNotFound
+		default:
+			return nil, err
+		}
+	}
+	defer rows.Close()
+
+	comments := []Comment{}
+
+	for rows.Next() {
+
+		var comment Comment
+		var author Profile
+		var createdAt string
+		var updatedAt string
+
+		rows.Scan(
+			&comment.ArticleId,
+			&comment.UserId,
+			&comment.CommentId,
+			&comment.Body,
+			&createdAt,
+			&updatedAt,
+			&author.Following,
+			&author.Username,
+			&author.Bio,
+			&author.Image,
+		)
+		if err != nil {
+			switch {
+			case errors.Is(err, sql.ErrNoRows):
+				return nil, ErrCommentNotFound
+			default:
+				return nil, fmt.Errorf("an error occured while retrieving a comment: %w", err)
+			}
+		}
+
+		comment.CreatedAt, err = time.Parse(time.RFC3339Nano, createdAt)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing created at date: %w", err)
+		}
+
+		comment.UpdatedAt, err = time.Parse(time.RFC3339Nano, updatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing updated at date: %w", err)
+		}
+
+		comment.Author = &author
+
+		comments = append(comments, comment)
+	}
+
+	return comments, nil
+}
