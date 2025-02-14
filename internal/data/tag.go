@@ -15,7 +15,7 @@ type TagRepository struct {
 func (repo *TagRepository) GetAllTags() ([]string, error) {
 	tags := make([]string, 0)
 
-	query := `SELECT DISTINCT tag FROM Tag`
+	query := `SELECT DISTINCT tag FROM Tag ORDER BY TagId ASC`
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
