@@ -1493,6 +1493,52 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get Tags",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"tags\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('tags')",
+									"})",
+									"",
+									"pm.test('no tags present', function() {",
+									"    pm.expect(responseJSON.tags.length === 0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"url": {
+							"raw": "{{APIURL}}/tags",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"tags"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

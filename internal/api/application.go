@@ -38,6 +38,7 @@ type domains struct {
 	users    data.UserRepository
 	articles data.ArticleRepository
 	comments data.CommentRepository
+	tags     data.TagRepository
 }
 
 type envelope map[string]any
@@ -65,6 +66,10 @@ func NewApp(config Config) (*Application, func(), error) {
 				TimeoutSeconds: config.DB.TimeoutSeconds,
 			},
 			comments: data.CommentRepository{
+				DB:             db,
+				TimeoutSeconds: config.DB.TimeoutSeconds,
+			},
+			tags: data.TagRepository{
 				DB:             db,
 				TimeoutSeconds: config.DB.TimeoutSeconds,
 			},
