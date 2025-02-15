@@ -51,6 +51,14 @@ type CreateArticleDTO struct {
 	} `json:"article"`
 }
 
+type UpdateArticleDTO struct {
+	Article struct {
+		Title       *string `json:"title"`
+		Description *string `json:"description"`
+		Body        *string `json:"body"`
+	} `json:"article"`
+}
+
 func (f *ArticleFilters) ParseFilters(r *http.Request) {
 	if r.URL.Query().Has("tag") {
 		value := r.URL.Query().Get("tag")
@@ -76,7 +84,28 @@ func (article CreateArticleDTO) Validate(v *validator.Validator) {
 	}
 }
 
+func (article UpdateArticleDTO) Validate(v *validator.Validator) {
+
+	v.Check(article.Article.Body != nil ||
+		article.Article.Description != nil ||
+		article.Article.Title != nil, "article", "must provide at least one of body, description or title")
+
+	if article.Article.Body != nil {
+		v.Check(*article.Article.Body != "", "body", "must not be blank")
+	}
+	if article.Article.Description != nil {
+		v.Check(*article.Article.Description != "", "description", "must not be blank")
+	}
+	if article.Article.Title != nil {
+		v.Check(*article.Article.Title != "", "title", "must not be blank")
+	}
+}
+
 func (article CreateArticleDTO) GetSlug() string {
+	return strings.ToLower(strings.ReplaceAll(*article.Article.Title, " ", "-"))
+}
+
+func (article UpdateArticleDTO) GetSlug() string {
 	return strings.ToLower(strings.ReplaceAll(*article.Article.Title, " ", "-"))
 }
 
@@ -148,6 +177,49 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 	err = tx.Commit()
 	if err != nil {
 		return nil, fmt.Errorf("an error occurred when attempting to commit the transaction while saving an article: %w", err)
+	}
+
+	article, err := repo.GetArticleBySlug(articleDto.GetSlug(), userId)
+	if err != nil {
+		return nil, fmt.Errorf("an error occurred when looking up article by slug after saving: %w", err)
+	}
+
+	return article, nil
+}
+
+func (repo *ArticleRepository) UpdateArticle(articleDto UpdateArticleDTO, articleId, userId int) (*Article, error) {
+
+	query := `UPDATE Article 
+			  SET Slug = $1,
+			      Title = $2,
+				  Description = $3,
+				  Body = $4,
+				  UpdatedAt = $5
+			  WHERE ArticleId = $6 AND UserId = $7`
+
+	now := time.Now().UTC().Format(time.RFC3339Nano)
+
+	args := []any{
+		articleDto.GetSlug(),
+		*articleDto.Article.Title,
+		*articleDto.Article.Description,
+		*articleDto.Article.Body,
+		now,
+		articleId,
+		userId,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	_, err := repo.DB.ExecContext(ctx, query, args...)
+	if err != nil {
+		switch {
+		case err.Error() == "UNIQUE constraint failed: Article.Slug":
+			return nil, ErrDuplicateSlug
+		default:
+			return nil, fmt.Errorf("an error occurred when saving article: %w", err)
+		}
 	}
 
 	article, err := repo.GetArticleBySlug(articleDto.GetSlug(), userId)

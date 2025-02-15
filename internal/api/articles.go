@@ -84,7 +84,65 @@ func (app *Application) createArticleHandler(w http.ResponseWriter, r *http.Requ
 
 // PUT /api/articles/:slug
 func (app *Application) updateArticleHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello real world"))
+	slug := r.PathValue("slug")
+
+	article, err := app.domains.articles.GetArticleBySlug(slug, app.getUserContext(r).userId)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrArticleNotFound):
+			app.serveResponseErrorNotFound(w, r)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
+		return
+	}
+
+	currentUserId := app.getUserContext(r).userId
+	if article.UserId != currentUserId {
+		app.serveResponseErrorForbidden(w, r)
+		return
+	}
+
+	var input data.UpdateArticleDTO
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	v := validator.New()
+
+	if input.Validate(v); !v.Valid() {
+		app.serveResponseErrorUnprocessableEntity(w, v)
+		return
+	}
+
+	if input.Article.Body == nil {
+		input.Article.Body = &article.Body
+	}
+	if input.Article.Title == nil {
+		input.Article.Title = &article.Title
+	}
+	if input.Article.Description == nil {
+		input.Article.Description = &article.Description
+	}
+
+	article, err = app.domains.articles.UpdateArticle(input, article.ArticleId, currentUserId)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrDuplicateSlug):
+			v.AddError("slug", "duplicate slug")
+			app.serveResponseErrorUnprocessableEntity(w, v)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"article": article}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+	}
 }
 
 // DELETE /api/articles/:slug

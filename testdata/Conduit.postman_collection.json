@@ -5156,6 +5156,546 @@
 					"response": []
 				},
 				{
+					"name": "Update Article - error - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}3\", \n        \"description\":\"{{ARTICLE_DESCRIPTION}}3\", \n        \"body\":\"{{ARTICLE_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}2",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Article - error - article not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 404', function() {",
+									"    pm.expect(pm.response.status).to.eql('Not Found')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}3\", \n        \"description\":\"{{ARTICLE_DESCRIPTION}}3\", \n        \"body\":\"{{ARTICLE_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/no-such-article",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"no-such-article"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Article - error - unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 403', function() {",
+									"    pm.expect(pm.response.status).to.eql('Forbidden')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}3\", \n        \"description\":\"{{ARTICLE_DESCRIPTION}}3\", \n        \"body\":\"{{ARTICLE_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}2",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Article - error - missing required fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 422', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"article\" must not be empty', function() {",
+									"    pm.expect(errors).to.have.property('article')",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}2",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Article - error - required fields blank",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 422', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"title\" must not be blank', function() {",
+									"    pm.expect(errors).to.have.property('title')",
+									"});",
+									"pm.test('\"description\" must not be blank', function() {",
+									"    pm.expect(errors).to.have.property('description')",
+									"});",
+									"pm.test('\"body\" must not be blank', function() {",
+									"    pm.expect(errors).to.have.property('body')",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"\", \n        \"description\":\"\", \n        \"body\":\"\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}2",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Article - error - duplicate slug",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 422', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unprocessable Entity')",
+									"})",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"errors\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"var errors = responseJSON.errors || {};",
+									"",
+									"pm.test('\"slug\" is duplicate', function() {",
+									"    pm.expect(errors).to.have.property('slug')",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}2",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Article",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"article\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('article');",
+									"});",
+									"",
+									"var article = responseJSON.article || {};",
+									"",
+									"pm.test('Article contains \"title\" property', function() {",
+									"    pm.expect(article).to.have.property('title');",
+									"    pm.expect(article.title).to.eql(pm.globals.get('ARTICLE_TITLE')+3)",
+									"});",
+									"",
+									"pm.test('Article contains \"slug\" property', function() {",
+									"    pm.expect(article).to.have.property('slug');",
+									"    pm.expect(article.slug).to.eql(pm.globals.get('ARTICLE_SLUG')+3)",
+									"});",
+									"",
+									"pm.test('Article contains \"body\" property', function() {",
+									"    pm.expect(article).to.have.property('body');",
+									"    pm.expect(article.body).to.eql(pm.globals.get('ARTICLE_BODY')+3)",
+									"});",
+									"",
+									"pm.test('Article contains \"description\" property', function() {",
+									"    pm.expect(article).to.have.property('description');",
+									"    pm.expect(article.description).to.eql(pm.globals.get('ARTICLE_DESCRIPTION')+3)",
+									"});",
+									"",
+									"pm.test('Article contains \"createdAt\" property', function() {",
+									"    pm.expect(article).to.have.property('createdAt');",
+									"});",
+									"pm.test('Article\\'s \"createdAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
+									"});",
+									"pm.test('Article contains \"updatedAt\" property', function() {",
+									"    pm.expect(article).to.have.property('updatedAt');",
+									"});",
+									"pm.test('Article\\'s \"updatedAt\" property is an ISO 8601 timestamp', function() {",
+									"    /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
+									"});",
+									"pm.test('Article \"updatedAt\" is after \"createdAt\"', function() {",
+									"    const updatedAt = new Date(article.updatedAt)",
+									"    const createdAt = new Date(article.createdAt)",
+									"    pm.expect(updatedAt).to.be.above(createdAt)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}3\", \n        \"description\":\"{{ARTICLE_DESCRIPTION}}3\", \n        \"body\":\"{{ARTICLE_BODY}}3\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}2",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Delete Article - error - not found",
 					"event": [
 						{
