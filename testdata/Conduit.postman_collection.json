@@ -5959,554 +5959,53 @@
 			]
 		},
 		{
-			"name": "Articles, Favorite, Comments",
+			"name": "Feed",
 			"item": [
 				{
-					"name": "Feed",
+					"name": "Register Feed User - setup",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = pm.response.code === 200;",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"    pm.test['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    pm.test['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    pm.test['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"        pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"        pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        pm.test['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles/feed",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles",
-								"feed"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "All Articles",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = pm.response.code === 200;",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"    pm.test['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    pm.test['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    pm.test['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"        pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"        pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        pm.test['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "All Articles with auth",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = pm.response.code === 200;",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"    pm.test['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    pm.test['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    pm.test['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"        pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"        pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        pm.test['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Articles by Author",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = pm.response.code === 200;",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"    pm.test['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    pm.test['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    pm.test['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"        pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"        pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        pm.test['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles?author={{USERNAME}}",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles"
-							],
-							"query": [
-								{
-									"key": "author",
-									"value": "{{USERNAME}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Articles by Author with auth",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = pm.response.code === 200;",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"    pm.test['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    pm.test['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    pm.test['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"",
-									"    if(responseJSON.articles.length){",
-									"        var article = responseJSON.articles[0];",
-									"",
-									"        pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"        pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"        pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"        pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"        pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"        pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"        pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"        pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"        pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"        pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"        pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"        pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"        pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"    } else {",
-									"        pm.test['articlesCount is 0 when feed is empty'] = responseJSON.articlesCount === 0;",
-									"    }",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles?author={{USERNAME}}",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles"
-							],
-							"query": [
-								{
-									"key": "author",
-									"value": "{{USERNAME}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Single Article by slug",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"pm.test['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
-									"",
-									"var article = responseJSON.article || {};",
-									"",
-									"pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"pm.test['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles/{{slug}}",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles",
-								"{{slug}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Articles by Tag",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"var is200Response = pm.response.code === 200;",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
-									"    pm.test['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    pm.test['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    pm.test['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"    var article = responseJSON.articles[0];",
-									"    pm.test['An article was returned'] = article !== undefined;",
-									"    pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"    pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"    pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"    pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"    pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"    pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"    pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"    pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"    pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"    pm.test['The first tag is dragons'] = article.tagList[0] === 'dragons';",
-									"    pm.test['The second tag is training'] = article.tagList[1] === 'training';",
-									"    pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"    pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"    pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"    pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"}",
-									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles?tag=dragons",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles"
-							],
-							"query": [
-								{
-									"key": "tag",
-									"value": "dragons"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Article",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"if (!(pm.environment.isIntegrationTest)) {",
-									"var responseJSON = JSON.parse(pm.response.text());",
+									"    var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
+									"    pm.test('Response contains \"user\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('user');",
+									"    });",
 									"",
-									"var article = responseJSON.article || {};",
+									"    var user = responseJSON.user || {};",
 									"",
-									"pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"pm.test['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
+									"    pm.test('\"email\" property matches FEED_USER_EMAIL variable', function() {",
+									"        const email = pm.globals.get('FEED_USER_EMAIL');",
+									"        pm.expect(user.email).to.eql(email);",
+									"    });",
+									"    pm.test('\"usermame\" property matches FEED_USER_USERNAME variable', function() {",
+									"        const username = pm.globals.get('FEED_USER_USERNAME');",
+									"        pm.expect(user.username).to.eql(username);",
+									"    });",
 									"}",
 									""
-								]
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set(\"FEED_USER_EMAIL\", (Math.random() * 1000) + \"@example.com\")",
+									"pm.globals.set(\"FEED_USER_USERNAME\", (Math.random() * 1000) + \"\")"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
-						"method": "PUT",
+						"method": "POST",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -6515,207 +6014,68 @@
 							{
 								"key": "X-Requested-With",
 								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"article\":{\"body\":\"With two hands\"}}"
+							"raw": "{\"user\":{\"email\":\"{{FEED_USER_EMAIL}}\", \"password\":\"{{PASSWORD}}\", \"username\":\"{{FEED_USER_USERNAME}}\"}}"
 						},
 						"url": {
-							"raw": "{{APIURL}}/articles/{{slug}}",
+							"raw": "{{APIURL}}/users",
 							"host": [
 								"{{APIURL}}"
 							],
 							"path": [
-								"articles",
-								"{{slug}}"
+								"users"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Articles Favorited by Username",
+					"name": "Register Feed User 2 - setup",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"var is200Response = pm.response.code === 200;",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
+									"if (!(pm.environment.isIntegrationTest)) {",
 									"    var responseJSON = JSON.parse(pm.response.text());",
-									"    article = responseJSON.articles[0];",
-									"    pm.test['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    pm.test['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    pm.test['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"    pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"    pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"    pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"    pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"    pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"    pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"    pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"    pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"    pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"    pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"    pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"    pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"    pm.test['favoritesCount is 1'] = article.favoritesCount === 1;",
+									"",
+									"    pm.test('Response contains \"user\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('user');",
+									"    });",
+									"",
+									"    var user = responseJSON.user || {};",
+									"",
+									"    pm.test('\"email\" property matches FEED_USER_EMAIL variable', function() {",
+									"        const email = pm.globals.get('FEED_USER_EMAIL')+2;",
+									"        pm.expect(user.email).to.eql(email);",
+									"    });",
+									"    pm.test('\"usermame\" property matches FEED_USER_USERNAME variable', function() {",
+									"        const username = pm.globals.get('FEED_USER_USERNAME') + 2;",
+									"        pm.expect(user.username).to.eql(username);",
+									"    });",
 									"}",
 									""
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles?favorited={{USERNAME}}",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles"
-							],
-							"query": [
-								{
-									"key": "favorited",
-									"value": "{{USERNAME}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Articles Favorited by Username with auth",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
+								],
 								"type": "text/javascript",
-								"exec": [
-									"var is200Response = pm.response.code === 200;",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
-									"    article = responseJSON.articles[0];",
-									"    pm.test['Response contains \"articles\" property'] = responseJSON.hasOwnProperty('articles');",
-									"    pm.test['Response contains \"articlesCount\" property'] = responseJSON.hasOwnProperty('articlesCount');",
-									"    pm.test['articlesCount is an integer'] = Number.isInteger(responseJSON.articlesCount);",
-									"    pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"    pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"    pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"    pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"    pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"    pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"    pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"    pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"    pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"    pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"    pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"    pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"    pm.test['favoritesCount is 1'] = article.favoritesCount === 1;",
-									"}",
-									""
-								]
+								"packages": {}
 							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "X-Requested-With",
-								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
-							}
-						],
-						"url": {
-							"raw": "{{APIURL}}/articles?favorited={{USERNAME}}",
-							"host": [
-								"{{APIURL}}"
-							],
-							"path": [
-								"articles"
-							],
-							"query": [
-								{
-									"key": "favorited",
-									"value": "{{USERNAME}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Unfavorite Article",
-					"event": [
+						},
 						{
-							"listen": "test",
+							"listen": "prerequest",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"pm.test['Response contains \"article\" property'] = responseJSON.hasOwnProperty('article');",
-									"",
-									"var article = responseJSON.article || {};",
-									"",
-									"pm.test['Article has \"title\" property'] = article.hasOwnProperty('title');",
-									"pm.test['Article has \"slug\" property'] = article.hasOwnProperty('slug');",
-									"pm.test['Article has \"body\" property'] = article.hasOwnProperty('body');",
-									"pm.test['Article has \"createdAt\" property'] = article.hasOwnProperty('createdAt');",
-									"pm.test['Article\\'s \"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.createdAt);",
-									"pm.test['Article has \"updatedAt\" property'] = article.hasOwnProperty('updatedAt');",
-									"pm.test['Article\\'s \"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(article.updatedAt);",
-									"pm.test['Article has \"description\" property'] = article.hasOwnProperty('description');",
-									"pm.test['Article has \"tagList\" property'] = article.hasOwnProperty('tagList');",
-									"pm.test['Article\\'s \"tagList\" property is an Array'] = Array.isArray(article.tagList);",
-									"pm.test['Article has \"author\" property'] = article.hasOwnProperty('author');",
-									"pm.test['Article has \"favorited\" property'] = article.hasOwnProperty('favorited');",
-									"pm.test['Article has \"favoritesCount\" property'] = article.hasOwnProperty('favoritesCount');",
-									"pm.test['favoritesCount is an integer'] = Number.isInteger(article.favoritesCount);",
-									"pm.test[\"Article's \\\"favorited\\\" property is false\"] = article.favorited === false;",
 									""
-								]
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
-						"method": "DELETE",
+						"method": "POST",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -6724,55 +6084,465 @@
 							{
 								"key": "X-Requested-With",
 								"value": "XMLHttpRequest"
-							},
-							{
-								"key": "Authorization",
-								"value": "Token {{token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": ""
+							"raw": "{\"user\":{\"email\":\"{{FEED_USER_EMAIL}}2\", \"password\":\"{{PASSWORD}}\", \"username\":\"{{FEED_USER_USERNAME}}2\"}}"
 						},
 						"url": {
-							"raw": "{{APIURL}}/articles/{{slug}}/favorite",
+							"raw": "{{APIURL}}/users",
 							"host": [
 								"{{APIURL}}"
 							],
 							"path": [
-								"articles",
-								"{{slug}}",
-								"favorite"
+								"users"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Create Comment for Article",
+					"name": "Register Feed User 3 - setup",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
+								"exec": [
+									"if (!(pm.environment.isIntegrationTest)) {",
+									"    var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"    pm.test('Response contains \"user\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('user');",
+									"    });",
+									"",
+									"    var user = responseJSON.user || {};",
+									"",
+									"    pm.test('\"email\" property matches FEED_USER_EMAIL variable', function() {",
+									"        const email = pm.globals.get('FEED_USER_EMAIL')+3;",
+									"        pm.expect(user.email).to.eql(email);",
+									"    });",
+									"    pm.test('\"usermame\" property matches FEED_USER_USERNAME variable', function() {",
+									"        const username = pm.globals.get('FEED_USER_USERNAME') + 3;",
+									"        pm.expect(user.username).to.eql(username);",
+									"    });",
+									"}",
+									""
+								],
 								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{FEED_USER_EMAIL}}3\", \"password\":\"{{PASSWORD}}\", \"username\":\"{{FEED_USER_USERNAME}}3\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Feed User 4 - setup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (!(pm.environment.isIntegrationTest)) {",
+									"    var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"    pm.test('Response contains \"user\" property', function() {",
+									"        pm.expect(responseJSON).to.have.property('user');",
+									"    });",
+									"",
+									"    var user = responseJSON.user || {};",
+									"",
+									"    pm.test('\"email\" property matches FEED_USER_EMAIL variable', function() {",
+									"        const email = pm.globals.get('FEED_USER_EMAIL')+4;",
+									"        pm.expect(user.email).to.eql(email);",
+									"    });",
+									"    pm.test('\"usermame\" property matches FEED_USER_USERNAME variable', function() {",
+									"        const username = pm.globals.get('FEED_USER_USERNAME') + 4;",
+									"        pm.expect(user.username).to.eql(username);",
+									"    });",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{FEED_USER_EMAIL}}4\", \"password\":\"{{PASSWORD}}\", \"username\":\"{{FEED_USER_USERNAME}}4\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login and Remember Token - setup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
 								"exec": [
 									"var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"pm.test['Response contains \"comment\" property'] = responseJSON.hasOwnProperty('comment');",
+									"pm.test('Response contains \"user\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('user')",
+									"});",
 									"",
-									"var comment = responseJSON.comment || {};",
+									"var user = responseJSON.user || {};",
 									"",
-									"pm.test['Comment has \"id\" property'] = comment.hasOwnProperty('id');",
-									"pm.globals.set('commentId', comment.id);",
+									"pm.test('User has \"token\" property', function() {",
+									"    pm.expect(user).to.have.property('token')",
+									"});",
 									"",
-									"pm.test['Comment has \"body\" property'] = comment.hasOwnProperty('body');",
-									"pm.test['Comment has \"createdAt\" property'] = comment.hasOwnProperty('createdAt');",
-									"pm.test['\"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.createdAt);",
-									"pm.test['Comment has \"updatedAt\" property'] = comment.hasOwnProperty('updatedAt');",
-									"pm.test['\"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.updatedAt);",
-									"pm.test['Comment has \"author\" property'] = comment.hasOwnProperty('author');",
+									"if(pm.test('User has \"token\" property')){",
+									"    pm.globals.set('feed_user_token', user.token);",
+									"}",
+									"",
+									"pm.test('Global variable \"feed_user_token\" has been set', function() {",
+									"    pm.globals.get('feed_user_token') === user.token",
+									"});",
 									""
-								]
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{FEED_USER_EMAIL}}\", \"password\":\"{{PASSWORD}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users/login",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login and Remember Token 2 - setup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"user\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('user')",
+									"});",
+									"",
+									"var user = responseJSON.user || {};",
+									"",
+									"pm.test('User has \"token\" property', function() {",
+									"    pm.expect(user).to.have.property('token')",
+									"});",
+									"",
+									"if(pm.test('User has \"token\" property')){",
+									"    pm.globals.set('feed_user_token_2', user.token);",
+									"}",
+									"",
+									"pm.test('Global variable \"feed_user_token_2\" has been set', function() {",
+									"    pm.globals.get('feed_user_token_2') === user.token",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{FEED_USER_EMAIL}}2\", \"password\":\"{{PASSWORD}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users/login",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login and Remember Token 3 - setup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"user\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('user')",
+									"});",
+									"",
+									"var user = responseJSON.user || {};",
+									"",
+									"pm.test('User has \"token\" property', function() {",
+									"    pm.expect(user).to.have.property('token')",
+									"});",
+									"",
+									"if(pm.test('User has \"token\" property')){",
+									"    pm.globals.set('feed_user_token_3', user.token);",
+									"}",
+									"",
+									"pm.test('Global variable \"feed_user_token_3\" has been set', function() {",
+									"    pm.globals.get('feed_user_token_3') === user.token",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{FEED_USER_EMAIL}}3\", \"password\":\"{{PASSWORD}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users/login",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login and Remember Token 4 - setup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('Response contains \"user\" property', function() {",
+									"    pm.expect(responseJSON).to.have.property('user')",
+									"});",
+									"",
+									"var user = responseJSON.user || {};",
+									"",
+									"pm.test('User has \"token\" property', function() {",
+									"    pm.expect(user).to.have.property('token')",
+									"});",
+									"",
+									"if(pm.test('User has \"token\" property')){",
+									"    pm.globals.set('feed_user_token_4', user.token);",
+									"}",
+									"",
+									"pm.test('Global variable \"feed_user_token_4\" has been set', function() {",
+									"    pm.globals.get('feed_user_token_4') === user.token",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"user\":{\"email\":\"{{FEED_USER_EMAIL}}4\", \"password\":\"{{PASSWORD}}\"}}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/users/login",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Follow Profile - user 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -6789,61 +6559,420 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{token}}"
+								"value": "Token {{feed_user_token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"comment\":{\"body\":\"Thank you so much!\"}}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "{{APIURL}}/articles/{{slug}}/comments",
+							"raw": "{{APIURL}}/profiles/{{FEED_USER_USERNAME}}2/follow",
 							"host": [
 								"{{APIURL}}"
 							],
 							"path": [
-								"articles",
-								"{{slug}}",
-								"comments"
+								"profiles",
+								"{{FEED_USER_USERNAME}}2",
+								"follow"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "All Comments for Article",
+					"name": "Follow Profile - user 3",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"var is200Response = pm.response.code === 200",
-									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
-									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
-									"",
-									"    pm.test['Response contains \"comments\" property'] = responseJSON.hasOwnProperty('comments');",
-									"",
-									"    if(responseJSON.comments.length){",
-									"        var comment = responseJSON.comments[0];",
-									"",
-									"        pm.test['Comment has \"id\" property'] = comment.hasOwnProperty('id');",
-									"        pm.test['Comment has \"body\" property'] = comment.hasOwnProperty('body');",
-									"        pm.test['Comment has \"createdAt\" property'] = comment.hasOwnProperty('createdAt');",
-									"        pm.test['\"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.createdAt);",
-									"        pm.test['Comment has \"updatedAt\" property'] = comment.hasOwnProperty('updatedAt');",
-									"        pm.test['\"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.updatedAt);",
-									"        pm.test['Comment has \"author\" property'] = comment.hasOwnProperty('author');",
-									"    }",
-									"}",
-									""
-								]
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/profiles/{{FEED_USER_USERNAME}}3/follow",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"profiles",
+								"{{FEED_USER_USERNAME}}3",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Article - user 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 201', function() {",
+									"    pm.expect(pm.response.status).to.eql('Created')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_1\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Article - user 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 201', function() {",
+									"    pm.expect(pm.response.status).to.eql('Created')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_2\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Article - user 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 201', function() {",
+									"    pm.expect(pm.response.status).to.eql('Created')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token_3}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_3\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Article - user 2_1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 201', function() {",
+									"    pm.expect(pm.response.status).to.eql('Created')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_4\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Article - user 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 201', function() {",
+									"    pm.expect(pm.response.status).to.eql('Created')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token_4}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_5\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Feed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 3', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(3);",
+									"});",
+									"",
+									"pm.test('feed contains articles feed_2,feed_3,feed_4', function() {",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
+									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_3');",
+									"    pm.expect(articles[2].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_4');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -6857,57 +6986,72 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{token}}"
+								"value": "Token {{feed_user_token}}"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
-							"raw": "{{APIURL}}/articles/{{slug}}/comments",
+							"raw": "{{APIURL}}/articles/feed",
 							"host": [
 								"{{APIURL}}"
 							],
 							"path": [
 								"articles",
-								"{{slug}}",
-								"comments"
+								"feed"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "All Comments for Article without login",
+					"name": "Get Feed - limit 2",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
-									"var is200Response = pm.response.code === 200",
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
 									"",
-									"pm.test['Response code is 200 OK'] = is200Response;",
+									"var responseJSON = JSON.parse(pm.response.text());",
 									"",
-									"if(is200Response){",
-									"    var responseJSON = JSON.parse(pm.response.text());",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
 									"",
-									"    pm.test['Response contains \"comments\" property'] = responseJSON.hasOwnProperty('comments');",
+									"const articles = responseJSON.articles || {}",
 									"",
-									"    if(responseJSON.comments.length){",
-									"        var comment = responseJSON.comments[0];",
+									"pm.test('articlesCount is 3', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(2);",
+									"});",
 									"",
-									"        pm.test['Comment has \"id\" property'] = comment.hasOwnProperty('id');",
-									"        pm.test['Comment has \"body\" property'] = comment.hasOwnProperty('body');",
-									"        pm.test['Comment has \"createdAt\" property'] = comment.hasOwnProperty('createdAt');",
-									"        pm.test['\"createdAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.createdAt);",
-									"        pm.test['Comment has \"updatedAt\" property'] = comment.hasOwnProperty('updatedAt');",
-									"        pm.test['\"updatedAt\" property is an ISO 8601 timestamp'] = /^\\d{4,}-[01]\\d-[0-3]\\dT[0-2]\\d:[0-5]\\d:[0-5]\\d.\\d+(?:[+-][0-2]\\d:[0-5]\\d|Z)$/.test(comment.updatedAt);",
-									"        pm.test['Comment has \"author\" property'] = comment.hasOwnProperty('author');",
-									"    }",
-									"}",
+									"pm.test('feed contains articles feed_2,feed_3', function() {",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
+									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_3');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
 									""
-								]
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -6918,26 +7062,82 @@
 							{
 								"key": "X-Requested-With",
 								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
-							"raw": "{{APIURL}}/articles/{{slug}}/comments",
+							"raw": "{{APIURL}}/articles/feed?limit=2",
 							"host": [
 								"{{APIURL}}"
 							],
 							"path": [
 								"articles",
-								"{{slug}}",
-								"comments"
+								"feed"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete Comment for Article",
+					"name": "Get Feed - limit 2 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 1', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(1);",
+									"});",
+									"",
+									"pm.test('feed contains articles feed_2', function() {",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "DELETE",
+						"method": "GET",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -6949,7 +7149,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{token}}"
+								"value": "Token {{feed_user_token}}"
 							}
 						],
 						"body": {
@@ -6957,24 +7157,75 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{APIURL}}/articles/{{slug}}/comments/{{commentId}}",
+							"raw": "{{APIURL}}/articles/feed?limit=1&offset=1",
 							"host": [
 								"{{APIURL}}"
 							],
 							"path": [
 								"articles",
-								"{{slug}}",
-								"comments",
-								"{{commentId}}"
+								"feed"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "1"
+								},
+								{
+									"key": "offset",
+									"value": "1"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete Article",
+					"name": "Get Feed - offset 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 1', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(1);",
+									"});",
+									"",
+									"pm.test('feed contains articles feed_4', function() {",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_4');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "DELETE",
+						"method": "GET",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -6986,7 +7237,7 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Token {{token}}"
+								"value": "Token {{feed_user_token}}"
 							}
 						],
 						"body": {
@@ -6994,37 +7245,254 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{APIURL}}/articles/{{slug}}",
+							"raw": "{{APIURL}}/articles/feed?offset=2",
 							"host": [
 								"{{APIURL}}"
 							],
 							"path": [
 								"articles",
-								"{{slug}}"
+								"feed"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "2"
+								}
 							]
 						}
 					},
 					"response": []
-				}
-			],
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
 				},
 				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
+					"name": "Get Feed - offset > feed length",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 0', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/feed?offset=10",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"feed"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Feed - error - offset -1 && limit 0",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 422', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unprocessable Entity');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"errors\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('errors');",
+									"});",
+									"",
+									"const errors = responseJSON.articles || {}",
+									"",
+									"pm.test('errors has \"offset\" property', function() {",
+									"    pm.expect(errors).to.have.property('offset');",
+									"});",
+									"",
+									"pm.test('errors has \"limit\" property', function() {",
+									"    pm.expect(errors).to.have.property('limit');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/feed?offset=-1&limit=0",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"feed"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "-1"
+								},
+								{
+									"key": "limit",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Feed - error - unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 401', function() {",
+									"    pm.expect(pm.response.status).to.eql('Unauthorized');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/feed",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"feed"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
