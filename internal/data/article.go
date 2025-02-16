@@ -385,7 +385,7 @@ func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Art
 		case errors.Is(err, sql.ErrNoRows):
 			return articles, nil
 		default:
-			return nil, err
+			return nil, fmt.Errorf("error querying articles while constructing feed: %w", err)
 		}
 	}
 
@@ -417,7 +417,7 @@ func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Art
 			&author.Image,
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error scanning article row: %w", err)
 		}
 
 		article.CreatedAt, err = time.Parse(time.RFC3339Nano, createdAt)
@@ -439,6 +439,10 @@ func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Art
 		}
 
 		articles = append(articles, &article)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rows while constructing feed: %w", err)
 	}
 
 	return articles, nil
