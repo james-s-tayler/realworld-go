@@ -6950,9 +6950,9 @@
 									"});",
 									"",
 									"pm.test('feed contains articles feed_2,feed_3,feed_4', function() {",
-									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_4');",
 									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_3');",
-									"    pm.expect(articles[2].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_4');",
+									"    pm.expect(articles[2].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
 									"});"
 								],
 								"type": "text/javascript",
@@ -7030,8 +7030,8 @@
 									"});",
 									"",
 									"pm.test('feed contains articles feed_2,feed_3', function() {",
-									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
-									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_3');",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_3');",
+									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
 									"});"
 								],
 								"type": "text/javascript",
@@ -7092,7 +7092,7 @@
 					"response": []
 				},
 				{
-					"name": "Get Feed - limit 2 Copy",
+					"name": "Get Feed - limit 1, offset 1",
 					"event": [
 						{
 							"listen": "test",

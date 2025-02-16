@@ -46,14 +46,23 @@ func (app *Application) getArticleHandler(w http.ResponseWriter, r *http.Request
 func (app *Application) getFeedHandler(w http.ResponseWriter, r *http.Request) {
 
 	v := validator.New()
-	filters := data.FeedFilters{}
+	filters := &data.FeedFilters{}
 
 	if filters.ParseFilters(v, r); !v.Valid() {
 		app.serveResponseErrorUnprocessableEntity(w, v)
 		return
 	}
 
-	w.Write([]byte("hello real world"))
+	articles, err := app.domains.articles.GetFeed(filters, app.getUserContext(r).userId)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"articles": articles, "articlesCount": len(articles)}, nil)
+	if err != nil {
+		app.serveResponseErrorInternalServerError(w, err)
+	}
 }
 
 // POST /api/articles

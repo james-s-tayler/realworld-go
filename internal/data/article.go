@@ -345,6 +345,104 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string, userId int) (*Artic
 	return &article, nil
 }
 
+func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Article, error) {
+	articles := make([]*Article, 0)
+
+	query := `SELECT
+				a.ArticleId,
+				a.UserId, 
+				a.Title,
+				a.Slug,
+				a.Description,
+				a.Body,
+				a.CreatedAt,
+				a.UpdatedAt,
+				(SELECT EXISTS(SELECT 1 FROM ArticleFavorite af WHERE af.ArticleId=a.ArticleId AND af.UserId=$1)) AS Favorited,
+				(SELECT COUNT(*) FROM ArticleFavorite af WHERE af.ArticleId=a.ArticleId) AS FavoritesCount,
+				COALESCE((SELECT GROUP_CONCAT(t.Tag, ',') 
+						FROM Tag t 
+						JOIN ArticleTag at ON at.TagId = t.TagId 
+						WHERE at.ArticleId = a.ArticleId), '') AS Tags,
+				EXISTS (SELECT 1 FROM Follower WHERE UserId = $1 AND FollowUserId = a.UserId) AS Following,
+				u.Username,
+				u.Bio,
+				u.Image
+			FROM Article a
+			JOIN User u ON a.UserId = u.UserId 
+			JOIN Follower f ON a.UserId = f.FollowUserId
+			WHERE f.UserId = $1
+			ORDER BY a.ArticleId DESC`
+
+	args := []any{userId}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	rows, err := repo.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return articles, nil
+		default:
+			return nil, err
+		}
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var article Article
+		var author Profile
+		var rawTags string
+		var createdAt string
+		var updatedAt string
+
+		err = rows.Scan(
+			&article.ArticleId,
+			&article.UserId,
+			&article.Title,
+			&article.Slug,
+			&article.Description,
+			&article.Body,
+			&createdAt,
+			&updatedAt,
+			&article.Favorited,
+			&article.FavoritesCount,
+			&rawTags,
+			&author.Following,
+			&author.Username,
+			&author.Bio,
+			&author.Image,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		article.CreatedAt, err = time.Parse(time.RFC3339Nano, createdAt)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing created at date: %w", err)
+		}
+
+		article.UpdatedAt, err = time.Parse(time.RFC3339Nano, updatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing updated at date: %w", err)
+		}
+
+		article.Author = &author
+
+		if rawTags == "" {
+			article.TagList = make([]string, 0)
+		} else {
+			article.TagList = strings.Split(rawTags, ",")
+		}
+
+		articles = append(articles, &article)
+	}
+
+	return articles, nil
+}
+
 func (repo *ArticleRepository) DeleteArticle(articleId, userId int) error {
 	query := `DELETE FROM Article WHERE ArticleId = $1 AND UserId = $2`
 
