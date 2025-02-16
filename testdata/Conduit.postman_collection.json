@@ -7360,7 +7360,7 @@
 									"    pm.expect(responseJSON).to.have.property('errors');",
 									"});",
 									"",
-									"const errors = responseJSON.articles || {}",
+									"const errors = responseJSON.errors || {}",
 									"",
 									"pm.test('errors has \"offset\" property', function() {",
 									"    pm.expect(errors).to.have.property('offset');",

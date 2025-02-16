@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -21,6 +22,11 @@ type ArticleFilters struct {
 	Tag       *string
 	Author    *string
 	Favorited *string
+}
+
+type FeedFilters struct {
+	Limit  int
+	Offset int
 }
 
 type BodylessArticle struct {
@@ -72,6 +78,35 @@ func (f *ArticleFilters) ParseFilters(r *http.Request) {
 		value := r.URL.Query().Get("favorited")
 		f.Favorited = &value
 	}
+}
+
+func (f *FeedFilters) ParseFilters(v *validator.Validator, r *http.Request) {
+	if r.URL.Query().Has("limit") {
+		value := r.URL.Query().Get("limit")
+		limit, err := strconv.Atoi(value)
+		if err != nil {
+			v.AddError("limit", "must be an integer")
+		} else {
+			f.Limit = limit
+		}
+	} else {
+		f.Limit = 20
+	}
+
+	if r.URL.Query().Has("offset") {
+		value := r.URL.Query().Get("offset")
+		offset, err := strconv.Atoi(value)
+		if err != nil {
+			v.AddError("offset", "must be an integer")
+		} else {
+			f.Offset = offset
+		}
+	} else {
+		f.Offset = 0
+	}
+
+	v.Check(f.Limit > 0, "limit", "must be a positive integer")
+	v.Check(f.Offset >= 0, "offset", "must be greater than or equal to zero")
 }
 
 func (article CreateArticleDTO) Validate(v *validator.Validator) {

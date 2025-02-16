@@ -44,6 +44,15 @@ func (app *Application) getArticleHandler(w http.ResponseWriter, r *http.Request
 
 // GET /api/articles/feed
 func (app *Application) getFeedHandler(w http.ResponseWriter, r *http.Request) {
+
+	v := validator.New()
+	filters := data.FeedFilters{}
+
+	if filters.ParseFilters(v, r); !v.Valid() {
+		app.serveResponseErrorUnprocessableEntity(w, v)
+		return
+	}
+
 	w.Write([]byte("hello real world"))
 }
 
