@@ -371,9 +371,10 @@ func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Art
 			JOIN User u ON a.UserId = u.UserId 
 			JOIN Follower f ON a.UserId = f.FollowUserId
 			WHERE f.UserId = $1
-			ORDER BY a.ArticleId DESC`
+			ORDER BY a.ArticleId DESC
+			LIMIT $2 OFFSET $3`
 
-	args := []any{userId}
+	args := []any{userId, filters.Limit, filters.Offset}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
