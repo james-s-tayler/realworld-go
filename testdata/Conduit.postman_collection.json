@@ -6680,7 +6680,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_1\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_1\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\"]\n    }\n}"
 						},
 						"url": {
 							"raw": "{{APIURL}}/articles",
@@ -6738,7 +6738,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_2\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_2\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\"]\n    }\n}"
 						},
 						"url": {
 							"raw": "{{APIURL}}/articles",
@@ -6854,7 +6854,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_4\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_4\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_2}}\"]\n    }\n}"
 						},
 						"url": {
 							"raw": "{{APIURL}}/articles",
@@ -6912,7 +6912,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_5\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_1}}\", \"{{TAG_2}}\"]\n    }\n}"
+							"raw": "{\n    \"article\": {\n        \"title\":\"{{ARTICLE_TITLE}}_feed_5\",\n        \"description\":\"{{ARTICLE_DESCRIPTION}}\",\n        \"body\":\"{{ARTICLE_BODY}}\",\n        \"tagList\":[\"{{TAG_2}}\"]\n    }\n}"
 						},
 						"url": {
 							"raw": "{{APIURL}}/articles",
@@ -7823,6 +7823,423 @@
 								{
 									"key": "offset",
 									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Articles - by author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 2', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(2);",
+									"});",
+									"",
+									"pm.test('most recent articles', function() {",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_4');",
+									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
+									"});",
+									"",
+									"pm.test('articles are by expected author', function() {",
+									"    pm.expect(articles[0].author.username).to.eql(pm.globals.get('FEED_USER_USERNAME')+2)",
+									"    pm.expect(articles[1].author.username).to.eql(pm.globals.get('FEED_USER_USERNAME')+2)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles?author={{FEED_USER_USERNAME}}2",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							],
+							"query": [
+								{
+									"key": "author",
+									"value": "{{FEED_USER_USERNAME}}2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Articles - by author no-such-author",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 0', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles?author=no-such-author",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							],
+							"query": [
+								{
+									"key": "author",
+									"value": "no-such-author"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Articles - by tag TAG_1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 3', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(3);",
+									"});",
+									"",
+									"pm.test('most recent articles', function() {",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_3');",
+									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
+									"    pm.expect(articles[2].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_1');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles?tag={{TAG_1}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							],
+							"query": [
+								{
+									"key": "tag",
+									"value": "{{TAG_1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Articles - by tag TAG_2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 3', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(3);",
+									"});",
+									"",
+									"pm.test('most recent articles', function() {",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_5');",
+									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_4');",
+									"    pm.expect(articles[2].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_3');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles?tag={{TAG_2}}",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							],
+							"query": [
+								{
+									"key": "tag",
+									"value": "{{TAG_2}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Articles - by tag NO_SUCH_TAG",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 0', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles?tag=no-such-tag",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							],
+							"query": [
+								{
+									"key": "tag",
+									"value": "no-such-tag"
 								}
 							]
 						}
