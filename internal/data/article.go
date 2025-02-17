@@ -22,9 +22,10 @@ type ArticleFilters struct {
 	Tag       *string
 	Author    *string
 	Favorited *string
+	PaginationFilters
 }
 
-type FeedFilters struct {
+type PaginationFilters struct {
 	Limit  int
 	Offset int
 }
@@ -65,7 +66,7 @@ type UpdateArticleDTO struct {
 	} `json:"article"`
 }
 
-func (f *ArticleFilters) ParseFilters(r *http.Request) {
+func (f *ArticleFilters) ParseFilters(v *validator.Validator, r *http.Request) {
 	if r.URL.Query().Has("tag") {
 		value := r.URL.Query().Get("tag")
 		f.Tag = &value
@@ -78,9 +79,11 @@ func (f *ArticleFilters) ParseFilters(r *http.Request) {
 		value := r.URL.Query().Get("favorited")
 		f.Favorited = &value
 	}
+	f.PaginationFilters = PaginationFilters{}
+	f.PaginationFilters.ParseFilters(v, r)
 }
 
-func (f *FeedFilters) ParseFilters(v *validator.Validator, r *http.Request) {
+func (f *PaginationFilters) ParseFilters(v *validator.Validator, r *http.Request) {
 	if r.URL.Query().Has("limit") {
 		value := r.URL.Query().Get("limit")
 		limit, err := strconv.Atoi(value)
@@ -345,8 +348,8 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string, userId int) (*Artic
 	return &article, nil
 }
 
-func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Article, error) {
-	articles := make([]*Article, 0)
+func (repo *ArticleRepository) GetArticles(filters *ArticleFilters, userId int) ([]*BodylessArticle, error) {
+	articles := make([]*BodylessArticle, 0)
 
 	query := `SELECT
 				a.ArticleId,
@@ -354,7 +357,105 @@ func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Art
 				a.Title,
 				a.Slug,
 				a.Description,
-				a.Body,
+				a.CreatedAt,
+				a.UpdatedAt,
+				(SELECT EXISTS(SELECT 1 FROM ArticleFavorite af WHERE af.ArticleId=a.ArticleId AND af.UserId=$1)) AS Favorited,
+				(SELECT COUNT(*) FROM ArticleFavorite af WHERE af.ArticleId=a.ArticleId) AS FavoritesCount,
+				COALESCE((SELECT GROUP_CONCAT(t.Tag, ',') 
+						FROM Tag t 
+						JOIN ArticleTag at ON at.TagId = t.TagId 
+						WHERE at.ArticleId = a.ArticleId), '') AS Tags,
+				EXISTS (SELECT 1 FROM Follower WHERE UserId = $1 AND FollowUserId = a.UserId) AS Following,
+				u.Username,
+				u.Bio,
+				u.Image
+			FROM Article a
+			JOIN User u ON a.UserId = u.UserId
+			ORDER BY a.ArticleId DESC
+			LIMIT $2 OFFSET $3`
+
+	args := []any{userId, filters.Limit, filters.Offset}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
+	defer cancel()
+
+	rows, err := repo.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return articles, nil
+		default:
+			return nil, fmt.Errorf("error querying articles while querying articles: %w", err)
+		}
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var article BodylessArticle
+		var author Profile
+		var rawTags string
+		var createdAt string
+		var updatedAt string
+
+		err = rows.Scan(
+			&article.ArticleId,
+			&article.UserId,
+			&article.Title,
+			&article.Slug,
+			&article.Description,
+			&createdAt,
+			&updatedAt,
+			&article.Favorited,
+			&article.FavoritesCount,
+			&rawTags,
+			&author.Following,
+			&author.Username,
+			&author.Bio,
+			&author.Image,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning article row: %w", err)
+		}
+
+		article.CreatedAt, err = time.Parse(time.RFC3339Nano, createdAt)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing created at date: %w", err)
+		}
+
+		article.UpdatedAt, err = time.Parse(time.RFC3339Nano, updatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing updated at date: %w", err)
+		}
+
+		article.Author = &author
+
+		if rawTags == "" {
+			article.TagList = make([]string, 0)
+		} else {
+			article.TagList = strings.Split(rawTags, ",")
+		}
+
+		articles = append(articles, &article)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rows while fetching articles: %w", err)
+	}
+
+	return articles, nil
+}
+
+func (repo *ArticleRepository) GetFeed(filters *PaginationFilters, userId int) ([]*BodylessArticle, error) {
+	articles := make([]*BodylessArticle, 0)
+
+	query := `SELECT
+				a.ArticleId,
+				a.UserId, 
+				a.Title,
+				a.Slug,
+				a.Description,
 				a.CreatedAt,
 				a.UpdatedAt,
 				(SELECT EXISTS(SELECT 1 FROM ArticleFavorite af WHERE af.ArticleId=a.ArticleId AND af.UserId=$1)) AS Favorited,
@@ -393,7 +494,7 @@ func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Art
 
 	for rows.Next() {
 
-		var article Article
+		var article BodylessArticle
 		var author Profile
 		var rawTags string
 		var createdAt string
@@ -405,7 +506,6 @@ func (repo *ArticleRepository) GetFeed(filters *FeedFilters, userId int) ([]*Art
 			&article.Title,
 			&article.Slug,
 			&article.Description,
-			&article.Body,
 			&createdAt,
 			&updatedAt,
 			&article.Favorited,

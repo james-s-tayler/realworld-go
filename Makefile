@@ -45,15 +45,15 @@ test/api/auth: db/reset build/api/dev run/api/background
 test/api/articles_empty: db/reset build/api/dev run/api/background
 	sleep 1 && FOLDER=ArticlesEmpty docker compose up && pkill cmd
 
-## test/api/articles: run the /api application in the background, then run the tests in the Articles folder of the postman collection in docker and kill the api application once finished
-.PHONY: test/api/articles
-test/api/articles: db/reset build/api/dev run/api/background
-	sleep 1 && FOLDER=Articles docker compose up && pkill cmd
+## test/api/article: run the /api application in the background, then run the tests in the Article folder of the postman collection in docker and kill the api application once finished
+.PHONY: test/api/article
+test/api/article: db/reset build/api/dev run/api/background
+	sleep 1 && FOLDER=Article docker compose up && pkill cmd
 
-## test/api/feed: run the /api application in the background, then run the tests in the Feed folder of the postman collection in docker and kill the api application once finished
-.PHONY: test/api/feed
-test/api/feed: db/reset build/api/dev run/api/background
-	sleep 1 && FOLDER=Feed docker compose up && pkill cmd
+## test/api/feed_and_articles: run the /api application in the background, then run the tests in the FeedAndArticles folder of the postman collection in docker and kill the api application once finished
+.PHONY: test/api/feed_and_articles
+test/api/feed_and_articles: db/reset build/api/dev run/api/background
+	sleep 1 && FOLDER=FeedAndArticles docker compose up && pkill cmd
 
 ## db/reset: delete the db and recreate it via running the migrations
 .PHONY: db/reset

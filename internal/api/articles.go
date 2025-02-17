@@ -1,6 +1,7 @@
 package conduit
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
 
@@ -10,12 +11,26 @@ import (
 
 // GET /api/articles
 func (app *Application) getArticlesHandler(w http.ResponseWriter, r *http.Request) {
+	v := validator.New()
 	filters := &data.ArticleFilters{}
-	filters.ParseFilters(r)
 
-	articles := make([]data.BodylessArticle, 0)
+	if filters.ParseFilters(v, r); !v.Valid() {
+		app.serveResponseErrorUnprocessableEntity(w, v)
+		return
+	}
 
-	err := app.writeJSON(w, http.StatusOK, envelope{"articles": articles, "articlesCount": len(articles)}, nil)
+	articles, err := app.domains.articles.GetArticles(filters, app.getUserContext(r).userId)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			articles = make([]*data.BodylessArticle, 0)
+		default:
+			app.serveResponseErrorInternalServerError(w, err)
+			return
+		}
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"articles": articles, "articlesCount": len(articles)}, nil)
 	if err != nil {
 		app.serveResponseErrorInternalServerError(w, err)
 	}
@@ -46,7 +61,7 @@ func (app *Application) getArticleHandler(w http.ResponseWriter, r *http.Request
 func (app *Application) getFeedHandler(w http.ResponseWriter, r *http.Request) {
 
 	v := validator.New()
-	filters := &data.FeedFilters{}
+	filters := &data.PaginationFilters{}
 
 	if filters.ParseFilters(v, r); !v.Valid() {
 		app.serveResponseErrorUnprocessableEntity(w, v)
