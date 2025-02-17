@@ -6927,6 +6927,156 @@
 					"response": []
 				},
 				{
+					"name": "Favorite Article",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}_feed_2/favorite",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}_feed_2",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Favorite Article 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token_3}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}_feed_2/favorite",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}_feed_2",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Favorite Article 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token_3}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}_feed_5/favorite",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}_feed_5",
+								"favorite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get Feed",
 					"event": [
 						{
@@ -8240,6 +8390,184 @@
 								{
 									"key": "tag",
 									"value": "no-such-tag"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Articles - favorited by user 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 2', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(2);",
+									"});",
+									"",
+									"pm.test('most recent articles', function() {",
+									"    pm.expect(articles[0].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_5');",
+									"    pm.expect(articles[1].slug).to.eql(pm.globals.get('ARTICLE_SLUG')+'_feed_2');",
+									"});",
+									"",
+									"pm.test('only article _feed_2 is favorited by current user', function() {",
+									"    pm.expect(articles[0].favorited).to.be.false;",
+									"    pm.expect(articles[1].favorited).to.be.true;",
+									"});",
+									"",
+									"pm.test('current user is following author', function() {",
+									"    pm.expect(articles[0].author.following).to.be.false;",
+									"    pm.expect(articles[1].author.following).to.be.true;",
+									"});",
+									"",
+									"pm.test('correct favoritesCount on articles', function() {",
+									"    pm.expect(articles[0].favoritesCount).to.eql(1);",
+									"    pm.expect(articles[1].favoritesCount).to.eql(2);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles?favorited={{FEED_USER_USERNAME}}3",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							],
+							"query": [
+								{
+									"key": "favorited",
+									"value": "{{FEED_USER_USERNAME}}3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Articles - favorited by no-such-user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 200', function() {",
+									"    pm.expect(pm.response.status).to.eql('OK');",
+									"});",
+									"",
+									"var responseJSON = JSON.parse(pm.response.text());",
+									"",
+									"pm.test('response has property \"articles\"', function() {",
+									"    pm.expect(responseJSON).to.have.property('articles');",
+									"});",
+									"",
+									"const articles = responseJSON.articles || {}",
+									"",
+									"pm.test('articlesCount is 0', function() {",
+									"    pm.expect(responseJSON.articlesCount).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{feed_user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles?favorited=no-such-user",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles"
+							],
+							"query": [
+								{
+									"key": "favorited",
+									"value": "no-such-user"
 								}
 							]
 						}
