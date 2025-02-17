@@ -70,14 +70,17 @@ func (f *ArticleFilters) ParseFilters(v *validator.Validator, r *http.Request) {
 	if r.URL.Query().Has("tag") {
 		value := r.URL.Query().Get("tag")
 		f.Tag = &value
+		v.Check(*f.Tag != "", "tag", "must not be blank")
 	}
 	if r.URL.Query().Has("author") {
 		value := r.URL.Query().Get("author")
 		f.Author = &value
+		v.Check(*f.Author != "", "author", "must not be blank")
 	}
 	if r.URL.Query().Has("favorited") {
 		value := r.URL.Query().Get("favorited")
 		f.Favorited = &value
+		v.Check(*f.Favorited != "", "favorited", "must not be blank")
 	}
 	f.PaginationFilters = PaginationFilters{}
 	f.PaginationFilters.ParseFilters(v, r)
