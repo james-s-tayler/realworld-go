@@ -1507,11 +1507,8 @@
 									"    pm.expect(responseJSON).to.have.property('tags')",
 									"})",
 									"",
-									"pm.test('Two tags present', function() {",
-									"    pm.expect(responseJSON.tags).to.have.members([",
-									"        pm.globals.get('TAG_1'),",
-									"        pm.globals.get('TAG_2')",
-									"    ]);",
+									"pm.test('No tags present', function() {",
+									"    pm.expect(responseJSON.tags.length).to.eql(0);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -5951,6 +5948,71 @@
 							"path": [
 								"articles",
 								"{{ARTICLE_SLUG}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Article 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Response is HTTP 204', function() {",
+									"    pm.expect(pm.response.status).to.eql('No Content')",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set('ARTICLE_TITLE', 'How to train your dragon')",
+									"pm.globals.set('ARTICLE_SLUG', 'how-to-train-your-dragon')",
+									"pm.globals.set('ARTICLE_DESCRIPTION', 'Ever wonder how?')",
+									"pm.globals.set('ARTICLE_BODY', 'Very carefully.')",
+									"pm.globals.set('REQUEST_DATE_TIME', new Date().toISOString())",
+									"pm.globals.set('TAG_1', 'training')",
+									"pm.globals.set('TAG_2', 'dragons')"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{articles_user_token_2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{APIURL}}/articles/{{ARTICLE_SLUG}}3",
+							"host": [
+								"{{APIURL}}"
+							],
+							"path": [
+								"articles",
+								"{{ARTICLE_SLUG}}3"
 							]
 						}
 					},

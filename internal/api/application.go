@@ -49,6 +49,8 @@ func NewApp(config Config) (*Application, func(), error) {
 	}))
 	slog.SetDefault(logger) // so that panics log with slog too
 
+	logger.Info("test logging works")
+
 	db, closeDb, err := OpenDB(config, logger)
 	if err != nil {
 		return nil, nil, err
@@ -64,6 +66,7 @@ func NewApp(config Config) (*Application, func(), error) {
 			articles: data.ArticleRepository{
 				DB:             db,
 				TimeoutSeconds: config.DB.TimeoutSeconds,
+				Log:            logger,
 			},
 			comments: data.CommentRepository{
 				DB:             db,

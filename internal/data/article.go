@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -153,9 +154,10 @@ func (article UpdateArticleDTO) GetSlug() string {
 type ArticleRepository struct {
 	DB             *sql.DB
 	TimeoutSeconds int
+	Log            *slog.Logger
 }
 
-func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId int) (*Article, error) {
+func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId int) (article *Article, retErr error) {
 
 	query := `INSERT INTO Article 
 				(UserId, Slug, Title, Description, Body, CreatedAt, UpdatedAt) 
@@ -178,19 +180,29 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 	defer cancel()
 
 	tx, err := repo.DB.BeginTx(ctx, nil)
-
 	if err != nil {
-		return nil, fmt.Errorf("an error occurred when starting a transaction while attempting to save an article: %w", err)
+		retErr = fmt.Errorf("an error occurred when starting a transaction while attempting to save an article: %w", err)
+		return nil, retErr
 	}
+	defer func() {
+		if retErr != nil {
+			err = tx.Rollback()
+			if err != nil && !errors.Is(err, sql.ErrTxDone) {
+				repo.Log.ErrorContext(ctx, err.Error())
+			}
+		}
+	}()
 
 	var articleId int
 	err = tx.QueryRowContext(ctx, query, args...).Scan(&articleId)
 	if err != nil {
 		switch {
 		case err.Error() == "UNIQUE constraint failed: Article.Slug":
-			return nil, ErrDuplicateSlug
+			retErr = ErrDuplicateSlug
+			return nil, retErr
 		default:
-			return nil, fmt.Errorf("an error occurred when saving article: %w", err)
+			retErr = fmt.Errorf("an error occurred when saving article: %w", err)
+			return nil, retErr
 		}
 	}
 
@@ -204,28 +216,32 @@ func (repo *ArticleRepository) CreateArticle(articleDto CreateArticleDTO, userId
 			insertTagQuery := `INSERT INTO Tag (Tag) VALUES ($1) RETURNING TagId`
 			err = tx.QueryRowContext(ctx, insertTagQuery, tag).Scan(&tagId)
 			if err != nil {
-				return nil, fmt.Errorf("an error occurred when attempting to save a tag: %w", err)
+				retErr = fmt.Errorf("an error occurred when attempting to save a tag: %w", err)
+				return nil, retErr
 			}
 		}
 
 		insertArticleTagQuery := `INSERT OR IGNORE INTO ArticleTag (ArticleId, TagId) VALUES ($1, $2)`
 		_, err = tx.ExecContext(ctx, insertArticleTagQuery, articleId, tagId)
 		if err != nil {
-			return nil, fmt.Errorf("an error occurred when attempting to tag an article: %w", err)
+			retErr = fmt.Errorf("an error occurred when attempting to tag an article: %w", err)
+			return nil, retErr
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return nil, fmt.Errorf("an error occurred when attempting to commit the transaction while saving an article: %w", err)
+		retErr = fmt.Errorf("an error occurred when attempting to commit the transaction while saving an article: %w", err)
+		return nil, retErr
 	}
 
-	article, err := repo.GetArticleBySlug(articleDto.GetSlug(), userId)
+	article, err = repo.GetArticleBySlug(articleDto.GetSlug(), userId)
 	if err != nil {
-		return nil, fmt.Errorf("an error occurred when looking up article by slug after saving: %w", err)
+		retErr = fmt.Errorf("an error occurred when looking up article by slug after saving: %w", err)
+		return nil, retErr
 	}
 
-	return article, nil
+	return article, retErr
 }
 
 func (repo *ArticleRepository) UpdateArticle(articleDto UpdateArticleDTO, articleId, userId int) (*Article, error) {
@@ -563,18 +579,60 @@ func (repo *ArticleRepository) GetFeed(filters *PaginationFilters, userId int) (
 	return articles, nil
 }
 
-func (repo *ArticleRepository) DeleteArticle(articleId, userId int) error {
-	query := `DELETE FROM Article WHERE ArticleId = $1 AND UserId = $2`
+func (repo *ArticleRepository) DeleteArticle(articleId, userId int) (retErr error) {
+	deleteArticleTagsQuery := `DELETE FROM ArticleTag WHERE ArticleId = $1`
+	deleteArticleCommentsQuery := `DELETE FROM Comment WHERE ArticleId = $1`
+	deleteArticleFavoritesQuery := `DELETE FROM ArticleFavorite WHERE ArticleId = $1`
+	deleteArticleQuery := `DELETE FROM Article WHERE ArticleId = $1 AND UserId = $2`
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
 
-	_, err := repo.DB.ExecContext(ctx, query, articleId, userId)
+	tx, err := repo.DB.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("an error occured while trying to delete an article: %w", err)
+		retErr = fmt.Errorf("an error occurred when starting a transaction while attempting to save an article: %w", err)
+		return retErr
+	}
+	defer func() {
+		if retErr != nil {
+			err = tx.Rollback()
+			if err != nil && !errors.Is(err, sql.ErrTxDone) {
+				repo.Log.Error(err.Error())
+			}
+		}
+	}()
+
+	_, err = repo.DB.ExecContext(ctx, deleteArticleTagsQuery, articleId)
+	if err != nil {
+		retErr = fmt.Errorf("an error occured while trying to delete article tags: %w", err)
+		return retErr
 	}
 
-	return nil
+	_, err = repo.DB.ExecContext(ctx, deleteArticleFavoritesQuery, articleId)
+	if err != nil {
+		retErr = fmt.Errorf("an error occured while trying to delete article favorites: %w", err)
+		return retErr
+	}
+
+	_, err = repo.DB.ExecContext(ctx, deleteArticleCommentsQuery, articleId)
+	if err != nil {
+		retErr = fmt.Errorf("an error occured while trying to delete article comments: %w", err)
+		return retErr
+	}
+
+	_, err = repo.DB.ExecContext(ctx, deleteArticleQuery, articleId, userId)
+	if err != nil {
+		retErr = fmt.Errorf("an error occured while trying to delete an article: %w", err)
+		return retErr
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		retErr = fmt.Errorf("an error occurred when attempting to commit the transaction while saving an article: %w", err)
+		return retErr
+	}
+
+	return retErr
 }
 
 func (repo *ArticleRepository) FavoriteArticle(articleId, userId int) error {
