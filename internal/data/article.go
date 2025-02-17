@@ -351,7 +351,7 @@ func (repo *ArticleRepository) GetArticleBySlug(slug string, userId int) (*Artic
 func (repo *ArticleRepository) GetArticles(filters *ArticleFilters, userId int) ([]*BodylessArticle, error) {
 	articles := make([]*BodylessArticle, 0)
 
-	query := `SELECT
+	query := `SELECT DISTINCT
 				a.ArticleId,
 				a.UserId, 
 				a.Title,
@@ -371,10 +371,22 @@ func (repo *ArticleRepository) GetArticles(filters *ArticleFilters, userId int) 
 				u.Image
 			FROM Article a
 			JOIN User u ON a.UserId = u.UserId
+			LEFT JOIN ArticleTag at ON at.ArticleId = a.ArticleId
+			LEFT JOIN Tag t ON t.TagId = at.TagId
+			LEFT JOIN ArticleFavorite af ON af.ArticleId = a.ArticleId
+			LEFT JOIN User favoriter ON favoriter.UserId = af.UserId
+			WHERE ($2 IS NULL OR u.Username = $2)
+			AND ($3 IS NULL OR favoriter.Username = $3)
+			AND ($4 IS NULL OR t.Tag = $4)
 			ORDER BY a.ArticleId DESC
-			LIMIT $2 OFFSET $3`
+			LIMIT $5 OFFSET $6`
 
-	args := []any{userId, filters.Limit, filters.Offset}
+	args := []any{userId,
+		filters.Author,
+		filters.Favorited,
+		filters.Tag,
+		filters.Limit,
+		filters.Offset}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.TimeoutSeconds)*time.Second)
 	defer cancel()
